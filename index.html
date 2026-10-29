@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>欧洲四国行 · Italy Spain France</title>
+<style>
+:root{--bg:#f6f3ee;--card:#fff;--tx:#1f2328;--mu:#6b7280;--ac:#b4472f;--ln:#e5e0d8;--chip:#efe9df;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15161a;--card:#202228;--tx:#eceae6;--mu:#9aa0a9;--ac:#e8806a;--ln:#33363d;--chip:#2a2d34;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15161a;--card:#202228;--tx:#eceae6;--mu:#9aa0a9;--ac:#e8806a;--ln:#33363d;--chip:#2a2d34;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 -apple-system,"PingFang SC","Noto Sans SC","Segoe UI",sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+main{max-width:760px;margin:0 auto;padding:14px 14px 40px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+h1{font-size:22px;margin:0 0 2px}
+.sub{color:var(--mu);font-size:13px}
+button{font:inherit;cursor:pointer}
+#lang{border:1px solid var(--ln);background:var(--card);color:var(--tx);border-radius:20px;padding:5px 14px;white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:14px;margin-top:12px}
+h2{font-size:14px;margin:0 0 8px;color:var(--ac);letter-spacing:.3px}
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:11;background:var(--bg);padding:10px 0 4px;margin-top:6px;display:flex;gap:6px;overflow-x:auto}
+.chip{flex:none;border:1px solid var(--ln);background:var(--chip);color:var(--tx);border-radius:12px;padding:4px 10px;text-align:center;line-height:1.3}
+.chip small{display:block;color:var(--mu);font-size:11px}
+.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}.chip.on small{color:#fff}
+.it{display:grid;grid-template-columns:78px 1fr;gap:8px;padding:7px 0;border-top:1px dashed var(--ln)}
+.it:first-of-type{border-top:0}
+.tm{color:var(--ac);font-weight:600;font-size:13px}
+.row{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:620px){.row{grid-template-columns:1fr 1fr}}
+.wx{display:flex;align-items:center;gap:12px}.wx b{font-size:26px}
+a{color:var(--ac)}
+ul{margin:0;padding-left:18px}li{margin:4px 0}
+svg{width:100%;height:auto;display:block}
+.mu{color:var(--mu);font-size:13px}
+textarea{width:100%;box-sizing:border-box;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--ln);border-radius:10px;padding:8px;margin-top:8px;resize:vertical}
+#go{margin-top:8px;border:0;background:var(--ac);color:#fff;border-radius:10px;padding:7px 18px}
+#go:disabled{opacity:.6}
+#ans{white-space:pre-wrap;margin-top:10px}
+#qs{display:flex;gap:6px;flex-wrap:wrap}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+#streetMap{height:360px;width:100%;border-radius:10px;z-index:0;background:var(--chip)}
+.map-tools{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.map-tools button{padding:5px 9px;border-radius:9px;border:1px solid var(--ln);background:var(--chip);color:var(--tx);font-size:12px}.map-tools button.active{color:#fff;background:var(--ac)}
+.map-pin{background:var(--ac);color:#fff;border:2px solid white;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;box-shadow:0 1px 5px #0005}.map-pin.station{background:#2363b9}.map-pin.rail{background:#248158}.map-pin.air{background:#6c49a8}
+.leaflet-popup-content{font:13px/1.45 -apple-system,'PingFang SC',sans-serif}.leaflet-container{font:inherit}details summary{cursor:pointer;color:var(--ac);font-weight:600}
+</style>
+</head>
+<body>
+<main>
+<noscript><p style="padding:20px">请开启 JavaScript 才能显示行程。 Please enable JavaScript.</p></noscript>
+<header><div><h1 id="ti"></h1><div class="sub" id="su"></div></div><button id="lang">EN</button></header>
+<div class="card"><h2 id="mh"></h2><div id="map"></div></div>
+<div class="tabs" id="tabs"></div>
+<div id="day"></div>
+<div class="card" id="ask" hidden><h2 id="ah"></h2><div id="qs"></div><textarea id="q" rows="2" maxlength="300"></textarea><button id="go"></button><div id="ans"></div></div>
+</main>
+<script>
+var L=(navigator.language||"").indexOf("zh")===0?0:1;
+var C={
+rome:{n:["罗马","Rome"],xy:[295,243],q:"Rome Italy",wx:[9,17,"🌦",["11月为雨季，多云间阵雨，早晚偏凉","Rainy season: cloudy with showers, cool mornings/evenings"]],sun:"17:00",cul:[
+["小费不强制；账单常含 coperto（座位费）","Tipping is optional; bills often include coperto (cover charge)"],
+["站在吧台喝咖啡更便宜；晚餐多在19:30后开始","Coffee at the bar counter is cheaper; dinner starts after 19:30"],
+["进教堂需遮住肩膀和膝盖；特米尼车站一带小心扒手","Cover shoulders & knees in churches; watch for pickpockets near Termini"]]},
+florence:{n:["佛罗伦萨","Florence"],xy:[267,187],q:"Florence Italy",wx:[6,15,"🌧",["秋末偏湿凉，早晚需外套","Damp and cool; bring a jacket"]],sun:"16:55",cul:[
+["必尝佛罗伦萨牛排 (Bistecca) 与奇安蒂红酒","Try bistecca alla fiorentina and Chianti wine"],
+["老城为限行区(ZTL)，步行最方便；多数博物馆周一闭馆","Centre is a car-restricted ZTL – walk; many museums close on Mondays"],
+["住宿城市税通常需在酒店用现金支付","City tax is usually paid in cash at the hotel"]]},
+barcelona:{n:["巴塞罗那","Barcelona"],xy:[68,258],q:"Barcelona Spain",wx:[11,18,"⛅",["温和偏干，偶有阵雨","Mild and mostly dry, occasional showers"]],sun:"17:20",cul:[
+["通用加泰罗尼亚语与西班牙语，说 Gràcies / Gracias 都友好","Catalan & Spanish are both spoken; Gràcies / Gracias are always welcome"],
+["晚餐通常21:00后；部分小店午休关门；哥特区和地铁扒窃多发","Dinner is 21:00+; small shops may close mid-day; pickpocketing is common in the Gothic Quarter & metro"],
+["必尝 tapas、pa amb tomàquet（番茄面包）、加泰焦糖布丁","Try tapas, pa amb tomàquet and crema catalana"]]},
+paris:{n:["巴黎","Paris"],xy:[72,34],q:"Paris France",wx:[5,11,"🌧",["阴冷多雨，带防水外套与保暖层","Grey, cold and rainy – pack waterproof layers"]],sun:"17:05",cul:[
+["进店先说 Bonjour，礼貌用语直接影响服务态度","Say Bonjour when entering shops/cafés – it sets the tone"],
+["账单已含服务费，凑整留小费即可；偶有罢工，出行前看地铁/RER公告","Service is included; rounding up is fine. Strikes happen – check metro/RER notices"],
+["卢浮宫与地铁一带扒手多；午晚餐之间不少餐厅休息","Pickpockets around the Louvre & metro; many restaurants close between lunch and dinner"]]}};
+var D=[
+{d:"11/7",w:["周六","Sat"],c:"rome",st:["UNA Hotels Decò Roma","UNA Hotels Decò Roma"],it:[
+["05:30","抵达罗马菲乌米奇诺机场T3，取行李去酒店（早到大概率无法入住，可寄存行李）","Land at Rome Fiumicino T3, go to the hotel (early check-in unlikely – store bags)"],
+["13:30","梵蒂冈博物馆（预约入场）→ 圣彼得大教堂（€7快速票），馆内通道直达无需重排","Vatican Museums (13:30 slot) → St Peter’s (€7 fast-track); internal passage, no second queue"],
+[["打卡","Treat"],"Gelateria del Teatro 冰淇淋","Gelato at Gelateria del Teatro"]],
+tr:["机场→市区：Leonardo Express 直达罗马特米尼站（约32分钟，€14）；市内以步行+地铁/公交为主","Airport→city: Leonardo Express to Roma Termini (~32 min, €14); then walk / metro / bus"],
+pr:["护照；梵蒂冈预约码与快速票离线保存；着装遮肩膝；大件行李放酒店","Passport; save Vatican booking & fast-track QR offline; cover shoulders/knees; leave big bags at hotel"]},
+{d:"11/8",w:["周日","Sun"],c:"rome",st:["UNA Hotels Decò Roma","UNA Hotels Decò Roma"],it:[
+["09:30","酒店出发","Leave the hotel"],
+["10:00","西班牙阶梯","Spanish Steps"],
+["10:50","纳沃纳广场（四河喷泉）","Piazza Navona (Fountain of the Four Rivers)"],
+["11:40","圣依纳爵堂——天花板透视画非常惊艳","Sant’Ignazio – the ceiling illusion is stunning"],
+["12:30","万神庙入内参观，周日排队久，预留时间","Pantheon (inside) – long Sunday queue, allow time"],
+["13:10","万神庙附近午餐","Lunch near the Pantheon"],
+["14:20","特雷维喷泉（先抛硬币再拍照）","Trevi Fountain (toss a coin, then photo)"],
+["15:00","【可选】圣天使城堡，体力不足可跳过","[Optional] Castel Sant’Angelo – skip if tired"],
+["15:50","真理之口，排队可能较长","Bocca della Verità – queue can be long"],
+["16:25","古罗马广场外围散步","Stroll around the Roman Forum"],
+["16:50","斗兽场外围等日落与蓝调光影（无需入场）","Colosseum exterior for sunset & blue hour (no entry needed)"],
+["17:20","斗兽场附近晚餐","Dinner near the Colosseum"]],
+tr:["全程步行为主，景点间约10–20分钟；累了可乘8号电车或打车","Mostly on foot, 10–20 min between sights; tram 8 or taxi when tired"],
+pr:["舒适步鞋；备零钱抛许愿币；万神庙现多需购票（约€5），出发前核对","Comfy shoes; coins for Trevi; Pantheon now usually charges ~€5 – verify before going"]},
+{d:"11/9",w:["周一","Mon"],c:"florence",st:["Rivoli Boutique Hotel","Rivoli Boutique Hotel"],it:[
+["09:00",  "罗马乘火车前往佛罗伦萨，提前确认站台","Train Rome → Florence; check platform in advance"],
+["11:01","抵达佛罗伦萨，前往酒店入住","Arrive in Florence, check in"],
+[["下午","Afternoon"],"圣母百花大教堂、领主广场、老桥（穹顶登顶需预约）","Duomo, Piazza della Signoria, Ponte Vecchio (dome climb needs booking)"],
+[["傍晚","Evening"],"米开朗基罗广场看全景日落","Piazzale Michelangelo for the sunset panorama"]],
+tr:["罗马特米尼站→佛罗伦萨新圣母玛利亚站：Frecciarossa/Italo 高铁约1.5小时；市内步行","Roma Termini → Firenze S.M.N. by Frecciarossa/Italo (~1.5 h); walk in town"],
+pr:["提前订票并确认站台；圣母百花穹顶须预约；车站注意扒手","Book the train & check platform; reserve the Duomo dome; watch pockets at stations"]},
+{d:"11/10",w:["周二","Tue"],c:"florence",st:["Rivoli Boutique Hotel","Rivoli Boutique Hotel"],it:[
+["10:00","乌菲兹美术馆（预约），留2.5–3小时，联票更划算","Uffizi Gallery (booked), allow 2.5–3 h; combo ticket is better value"],
+[["下午","Afternoon"],"碧提宫、波波里花园（17:30停止入场）","Pitti Palace & Boboli Gardens (last entry 17:30)"],
+[["傍晚","Evening"],"米开朗基罗广场日落","Sunset at Piazzale Michelangelo"]],
+tr:["步行；碧提宫在河对岸，步行约15分钟","On foot; Pitti Palace is ~15 min across the Arno"],
+pr:["乌菲兹预约或联票；日落约16:55，去米开朗基罗广场宜提前","Uffizi booking / combo; sunset ~16:55 so head to Piazzale Michelangelo early"]},
+{d:"11/11",w:["周三","Wed"],c:"barcelona",st:["Dorma Plaza Catalunya","Dorma Plaza Catalunya"],it:[
+["09:50","佛罗伦萨飞巴塞罗那（09:50–11:35），抵达后去酒店；机票含行李，提前值机","Fly Florence → Barcelona (09:50–11:35), then hotel; bag included, check in early"],
+[["下午","Afternoon"],"哥特区步行，打卡亲吻墙（酒店步行约10分钟）","Gothic Quarter walk & Kissing Wall (~10 min from hotel)"],
+["16:45","Tibidabo 山顶看日落，建议15:30出发，最迟17:00到","Sunset at Tibidabo – leave 15:30, arrive by 17:00"]],
+tr:["机场→市区：Aerobus 至加泰罗尼亚广场（约35分钟）。Tibidabo：L7→Av. Tibidabo→111路公交","Airport→city: Aerobus to Plaça Catalunya (~35 min). Tibidabo: L7 → Av. Tibidabo → bus 111"],
+pr:["线上值机；下山公交班次少，下载 Bolt 打车备用","Check in online; few buses down the hill – install Bolt as backup"]},
+{d:"11/12",w:["周四","Thu"],c:"barcelona",st:["Dorma Plaza Catalunya","Dorma Plaza Catalunya"],it:[
+[["全天","All day"],"La Roca 奥特莱斯购物，单程约1小时，早出发并预留返程时间","La Roca Village outlet shopping, ~1 h each way – leave early, allow return time"]],
+tr:["La Roca Village 直达大巴（约1小时，市中心发车，建议提前订票）","La Roca Village shuttle bus (~1 h, departs central Barcelona; book ahead)"],
+pr:["带护照办理退税；确认末班返程时间；带购物袋","Bring passport for tax refund; confirm last return bus; bring a shopping bag"]},
+{d:"11/13",w:["周五","Fri"],c:"barcelona",st:["Dorma Plaza Catalunya","Dorma Plaza Catalunya"],it:[
+["09:00","巴特罗之家","Casa Batlló"],
+["11:00","米拉之家","Casa Milà (La Pedrera)"],
+["15:20","圣家堂（预约），严格按预约时间入场，登顶票需单独购买","Sagrada Família (booked) – strict entry slot; tower ticket is separate"]],
+tr:["步行/地铁：巴特罗、米拉同在恩典大道；圣家堂乘 L2/L5 至 Sagrada Família 站","Walk/metro: Batlló & Milà are on Passeig de Gràcia; Sagrada Família via L2/L5"],
+pr:["各景点网上预约并准时；登塔票另购；随身带证件","Book all sites online and be on time; towers need separate tickets; carry ID"]},
+{d:"11/14",w:["周六","Sat"],c:"paris",st:["巴黎馨乐庭 Les Halles 公寓酒店","Citadines Les Halles Paris (apartment hotel)"],it:[
+["09:15","巴塞罗那飞巴黎（09:15–11:15），抵达后去酒店；位置优越，近卢浮宫、蓬皮杜","Fly Barcelona → Paris (09:15–11:15), then hotel; close to the Louvre & Pompidou"],
+[["下午","Afternoon"],"巴黎市区逛街，适应时差，轻松为主","Easy wander around central Paris"]],
+tr:["戴高乐机场→Les Halles：RER B 直达 Châtelet-Les Halles（约35分钟）","CDG → Les Halles: RER B direct to Châtelet-Les Halles (~35 min)"],
+pr:["线上值机；买 Navigo Easy 或单程票；提前联系公寓确认入住时间","Check in online; buy Navigo Easy / single ticket; ask the apartment about check-in time"]},
+{d:"11/15",w:["周日","Sun"],c:"paris",st:["巴黎馨乐庭 Les Halles 公寓酒店","Citadines Les Halles Paris (apartment hotel)"],it:[
+["09:30","出发前往卢浮宫（提前3周预约，留3小时）","Head to the Louvre (booked 3 weeks ahead, allow 3 h)"],
+[["中午","Noon"],"卢浮宫→杜乐丽花园→协和广场，路边午餐（油封鸭、洋葱汤）","Louvre → Tuileries → Place de la Concorde; street-side lunch (duck confit, onion soup)"],
+[["下午","Afternoon"],"协和广场→香榭丽舍→凯旋门登顶（须网上预约，周日排队长）","Concorde → Champs-Élysées → Arc de Triomphe climb (book online; long Sunday queue)"],
+["17:00","埃菲尔铁塔日落打卡（人多，上塔需提前购票）","Eiffel Tower at sunset (crowded; buy tickets ahead)"],
+[["晚上","Night"],"塞纳河夜游，天黑后整点闪灯5分钟","Seine night cruise – tower sparkles for 5 min on the hour after dark"]],
+tr:["地铁1号线串联卢浮宫—协和—香榭丽舍—凯旋门；埃菲尔铁塔乘 RER C 或 6/9 号线","Metro line 1 links Louvre–Concorde–Champs-Élysées–Arc; Eiffel Tower via RER C or lines 6/9"],
+pr:["卢浮宫、凯旋门、埃菲尔铁塔均需预订；提前买夜游船票；备防水外套","Book Louvre, Arc de Triomphe & Eiffel Tower; pre-buy cruise tickets; waterproof jacket"]},
+{d:"11/16",w:["周一","Mon"],c:"paris",st:["—","—"],it:[
+["11:30","戴高乐机场T2A飞福州，转机厦门（国际航班至少提前3小时到机场）","CDG T2A → Fuzhou, connect to Xiamen (arrive at the airport 3 h early)"],
+[["次日","Next day"],"09:20 抵达厦门，行程结束","09:20 land in Xiamen – trip ends"]],
+tr:["Les Halles→机场：RER B 至 CDG 2 TGV 站，再步行/接驳到 T2A（约50分钟）","Les Halles → airport: RER B to CDG 2 TGV, then walk/shuttle to T2A (~50 min)"],
+pr:["提前3小时到机场；托运前先办理退税盖章；留足时间应对安检","Arrive 3 h early; get tax-refund stamps before bag drop; allow time for security"]}
+];
+var P=[
+{m:"transit",p:[[41.9014,12.4996,"酒店","Hotel"],[41.9065,12.4536,"梵蒂冈博物馆","Vatican Museums"],[41.9022,12.4539,"圣彼得大教堂","St Peter’s Basilica"],[41.8993,12.4698,"Gelateria del Teatro","Gelateria del Teatro"]]},
+{m:"walking",p:[[41.9014,12.4996,"酒店","Hotel"],[41.9060,12.4828,"西班牙阶梯","Spanish Steps"],[41.8992,12.4731,"纳沃纳广场","Piazza Navona"],[41.9006,12.4801,"圣依纳爵堂","Sant’Ignazio"],[41.8986,12.4769,"万神庙","Pantheon"],[41.9009,12.4833,"特雷维喷泉","Trevi Fountain"],[41.9031,12.4663,"圣天使城堡（可选）","Castel Sant’Angelo (optional)"],[41.8881,12.4818,"真理之口","Bocca della Verità"],[41.8925,12.4853,"古罗马广场","Roman Forum"],[41.8902,12.4922,"斗兽场","Colosseum"]]},
+{m:"walking",p:[[43.7766,11.2481,"新圣母玛利亚火车站","Firenze S.M.N. station"],[43.7745,11.2460,"酒店","Hotel"],[43.7731,11.2560,"圣母百花大教堂","Duomo"],[43.7696,11.2558,"领主广场","Piazza della Signoria"],[43.7680,11.2531,"老桥","Ponte Vecchio"],[43.7629,11.2650,"米开朗基罗广场","Piazzale Michelangelo"]]},
+{m:"walking",p:[[43.7745,11.2460,"酒店","Hotel"],[43.7678,11.2553,"乌菲兹美术馆","Uffizi Gallery"],[43.7650,11.2500,"碧提宫","Pitti Palace"],[43.7627,11.2493,"波波里花园","Boboli Gardens"],[43.7629,11.2650,"米开朗基罗广场","Piazzale Michelangelo"]]},
+{m:"transit",p:[[41.3870,2.1700,"酒店","Hotel"],[41.3840,2.1762,"哥特区","Gothic Quarter"],[41.4225,2.1187,"Tibidabo 山顶","Tibidabo summit"]]},
+{m:"transit",p:[[41.3870,2.1700,"酒店","Hotel"],[41.6102,2.3463,"La Roca Village","La Roca Village"]]},
+{m:"transit",p:[[41.3870,2.1700,"酒店","Hotel"],[41.3917,2.1649,"巴特罗之家","Casa Batlló"],[41.3953,2.1620,"米拉之家","Casa Milà"],[41.4036,2.1744,"圣家堂","Sagrada Família"]]},
+{m:"walking",p:[[48.8614,2.3466,"酒店","Hotel"],[48.8606,2.3522,"附近：蓬皮杜中心","Nearby: Centre Pompidou"],[48.8606,2.3376,"附近：卢浮宫","Nearby: Louvre"]]},
+{m:"transit",p:[[48.8614,2.3466,"酒店","Hotel"],[48.8606,2.3376,"卢浮宫","Louvre"],[48.8634,2.3275,"杜乐丽花园","Tuileries Garden"],[48.8656,2.3212,"协和广场","Place de la Concorde"],[48.8738,2.2950,"凯旋门","Arc de Triomphe"],[48.8584,2.2945,"埃菲尔铁塔","Eiffel Tower"]]},
+{m:"transit",p:[[48.8614,2.3466,"酒店（出发点）","Hotel (departure point)"]]}
+];
+var UI={lg:["🔴 行程城市（点击切换）　⚪ 附近主要景点城市　🚆火车　✈️飞机","🔴 Trip cities (tap to switch)　⚪ Nearby highlights　🚆 train　✈️ flight"],min:[" 分钟"," min"],tot:["合计移动约","Total travel ≈"],est:["耗时与路程由直线距离粗略推算，不代表真实导航结果；河流与海岸为示意","Times & distances are rough estimates derived from straight-line distance; rivers and coast are schematic"],rt:["🗺 当天路线图","🗺 Route map"],rtn:["在 Google 地图查看路线","Open route in Google Maps"],km:["各点直线距离合计约","Straight-line total ≈"],sch:["示意图（按真实坐标缩放，无街道）","Schematic from real coordinates (no streets)"],ah:["🤖 问 Claude（针对所选日期）","🤖 Ask Claude (about the selected day)"],ph:["例如：这天怎么从酒店去第一个景点？","e.g. How do I get from the hotel to the first stop?"],go:["提问","Ask"],busy:["思考中…","Thinking…"],err:["暂时无法回答，请稍后再试","Couldn’t answer right now – please try again"],q1:["这天需要带什么？","What should I bring today?"],q2:["景点之间怎么走最方便？","Best way to get between today’s stops?"],ti:["欧洲四国行 · 意·西·法","Europe Trip · Italy · Spain · France"],su:["11月7日–16日 · 罗马 → 佛罗伦萨 → 巴塞罗那 → 巴黎","Nov 7–16 · Rome → Florence → Barcelona → Paris"],mh:["📍 目的地地图（点击城市）","📍 Destination map (tap a city)"],it:["🗓 当天行程","🗓 Itinerary"],wx:["🌤 当天天气","🌤 Weather"],stay:["🏨 住宿","🏨 Stay"],tr:["🚆 交通方式","🚆 Getting around"],pr:["🎒 交通与出行准备","🎒 Prep & tickets"],cul:["🏛 当地人文与实用提示","🏛 Local culture & tips"],open:["在地图中打开","Open in Maps"],fc:["查看实时预报","Live forecast"],sun:["日落约","Sunset ~"],typ:["11月典型气候（实时预报见下方链接）","Typical November climate (see link for live forecast)"],cd:["距出发还有 %n 天","%n days to go"],note:["时差：欧洲比北京慢7小时；电压230V（欧标圆头插（视国家插座类型而定））；货币欧元","Time: Europe is 7 h behind Beijing; 230 V (Type C/F plugs); currency EUR"]};
+var cur=0,$=function(i){return document.getElementById(i)};
+function u(k){return UI[k][L]}
+function T(x){return Array.isArray(x)?x[L]:x}
+var GEO={
+eu:[[2.4,53],[25,53],[25,40],[19.5,40],[19.4,41.5],[18.5,42.5],[17.2,43.2],[15.5,44.2],[14.5,45.2],[13.7,45.65],[9,44.5],[6.5,45.5],[2.4,51.05]],
+fr:[[2.4,51.05],[3.2,50.5],[4.2,49.95],[5.8,49.5],[6.4,49.4],[8.2,48.97],[7.6,47.6],[6.9,47.3],[6.1,46.3],[7,45.9],[6.9,45.1],[7.6,44.15],[7.5,43.78],[6.7,43.1],[5.4,43.2],[4.2,43.45],[3.1,43.05],[3.05,42.45],[1.7,42.5],[0.7,42.8],[-0.7,42.85],[-1.8,43.35],[-1.25,44.65],[-1.2,45.55],[-1.15,46.15],[-2.2,47.15],[-2.5,47.4],[-4.4,47.8],[-4.7,48.4],[-3.5,48.85],[-1.6,48.65],[-1.9,49.7],[-1.2,49.7],[-0.1,49.3],[0.2,49.5],[1.6,50.1],[1.6,50.9]],
+co:[[8.6,42.9],[9.4,43],[9.5,42],[9,41.4],[8.7,41.9]],
+it:[[7.5,43.8],[7,44.1],[6.9,45.1],[7,45.9],[7.9,45.95],[8.5,46.4],[9,45.85],[9.3,46.5],[10.4,46.55],[10.5,46.85],[11.1,46.95],[11.5,47],[12.2,47.1],[13.7,46.5],[13.6,45.8],[13.1,45.6],[12.3,45.3],[12.4,44.4],[13.6,43.55],[14.2,42.4],[15.9,41.9],[16.9,41.1],[18.5,40.2],[18.5,39.8],[17.2,40.4],[16.6,39.7],[17.1,39.1],[16.6,38.9],[16.1,38],[15.65,38.1],[16,38.7],[16.1,39.3],[15.8,39.9],[15.4,40],[14.9,40.2],[14.25,40.85],[13.7,41.2],[12.7,41.45],[12.25,41.8],[11.1,42.4],[10.5,42.9],[10.3,43.5],[10.2,43.9],[9.8,44.1],[8.9,44.4],[8,43.9]],
+si:[[12.4,38],[13.35,38.15],[15.6,38.25],[15.1,37.3],[15.1,36.7],[14.4,36.8],[12.7,37.6]],
+sa:[[8.2,40.9],[8.4,41.1],[9.5,41.1],[9.8,40.5],[9.7,39.2],[9,38.9],[8.4,39.2],[8.4,40.3]],
+ib:[[-1.8,43.35],[-3.8,43.45],[-5.7,43.55],[-8,43.75],[-9.3,43],[-8.85,41.9],[-8.8,41],[-9,39.3],[-9.5,38.75],[-8.9,37.9],[-9,37],[-7.4,37.2],[-6.3,36.8],[-5.6,36],[-4.4,36.7],[-2.2,36.7],[-0.7,37.6],[0.2,38.7],[-0.3,39.5],[0,40.2],[0.9,40.7],[1.2,41.1],[2.2,41.4],[3.2,41.9],[3.2,42.4],[3.05,42.45],[1.7,42.5],[0.7,42.8],[-0.7,42.85]],
+pt:[[-8.85,41.9],[-8.2,42.1],[-6.8,41.95],[-6.2,41.5],[-6.9,40],[-7,39.5],[-7.3,38.8],[-7,38],[-7.4,37.2],[-9,37],[-8.9,37.9],[-9.5,38.75],[-9,39.3],[-8.8,41]],
+ma:[[2.4,39.4],[3.1,39.9],[3.5,39.7],[3.1,39.3],[2.6,39.4]]};
+var TC={rome:[12.5,41.9,"11/7–8",[-14,4,"end"]],florence:[11.25,43.77,"11/9–10",[-14,4,"end"]],barcelona:[2.17,41.39,"11/11–13",[-14,4,"end"]],paris:[2.35,48.86,"11/14–16",[14,4,"start"]]};
+var NB=[["威尼斯","Venice",12.33,45.44],["米兰","Milan",9.19,45.46],["那不勒斯","Naples",14.27,40.85],["锡耶纳","Siena",11.33,43.32],["马德里","Madrid",-3.7,40.42],["瓦伦西亚","Valencia",-0.38,39.47],["赫罗纳","Girona",2.82,41.98],["塞维利亚","Seville",-5.98,37.39],["里昂","Lyon",4.84,45.76],["尼斯","Nice",7.26,43.7],["马赛","Marseille",5.37,43.3],["圣米歇尔山","Mont-St-Michel",-1.51,48.64],["波尔多","Bordeaux",-0.58,44.84],["斯特拉斯堡","Strasbourg",7.75,48.58]];
+function map(){
+var W=360,H=340,px=function(o,a){return[(o+6)*16.4,(51.5-a)*22.8]};
+var poly=function(a){return a.map(function(p){var q=px(p[0],p[1]);return q[0].toFixed(1)+","+q[1].toFixed(1)}).join(" ")};
+var ln=function(k,t,o){return '<polygon points="'+poly(GEO[k])+'" fill="'+(t||"var(--card)")+'" opacity="'+(o||1)+'" stroke="var(--mu)" stroke-width=".7" stroke-linejoin="round"/>'};
+var tint=function(k,c,o){return '<polygon points="'+poly(GEO[k])+'" fill="'+c+'" opacity="'+o+'"/>'};
+var g='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="map"><defs><clipPath id="mc"><rect width="'+W+'" height="'+H+'" rx="10"/></clipPath></defs><g clip-path="url(#mc)"><rect width="'+W+'" height="'+H+'" fill="var(--chip)"/><rect width="'+W+'" height="'+H+'" fill="#6aa6d8" opacity=".3"/>';
+g+=ln("eu","var(--card)",.55)+ln("pt","var(--card)",.55)+ln("ib")+ln("ma")+ln("fr")+ln("co")+ln("it")+ln("si")+ln("sa");
+g+=tint("fr","#7b9fd4",.2)+tint("co","#7b9fd4",.2)+tint("it","#7fbf8f",.24)+tint("si","#7fbf8f",.24)+tint("sa","#7fbf8f",.24)+tint("ib","#e0b45a",.26)+tint("ma","#e0b45a",.26);
+var tx=function(x,y,t,sz,o,st){return '<text x="'+x.toFixed(0)+'" y="'+y.toFixed(0)+'" text-anchor="middle" font-size="'+sz+'" fill="var(--tx)" opacity="'+o+'" '+st+'>'+t+'</text>'};
+[[2.3,46.9,"法国","France"],[-3.3,40.9,"西班牙","Spain"],[13,42.9,"意大利","Italy"]].forEach(function(c){var p=px(c[0],c[1]);g+=tx(p[0],p[1],c[2+L],L?14:16,.4,'font-weight="700" letter-spacing="2"')});
+var sp=px(5.2,39.6);g+=tx(sp[0],sp[1],L?"Mediterranean":"地中海",10,.5,'font-style="italic"');
+sp=px(-5.6,45.4);g+=tx(sp[0],sp[1],L?"Atlantic":"大西洋",10,.5,'font-style="italic"');
+var cur_c=D[cur].c,order=["rome","florence","barcelona","paris"],lk=[["rome","florence","🚆",0],["florence","barcelona","✈️",-1],["barcelona","paris","✈️",1]];
+lk.forEach(function(l){var a=px(TC[l[0]][0],TC[l[0]][1]),b=px(TC[l[1]][0],TC[l[1]][1]),mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,fl=l[3]!==0,cx=mx,cy=my;
+if(fl){var dx=b[0]-a[0],dy=b[1]-a[1],ln2=Math.hypot(dx,dy);cx=mx+(-dy/ln2)*28*l[3];cy=my+(dx/ln2)*28*l[3]}
+g+='<path d="M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+(fl?' Q'+cx.toFixed(1)+' '+cy.toFixed(1)+' ':' L')+b[0].toFixed(1)+' '+b[1].toFixed(1)+'" fill="none" stroke="var(--ac)" stroke-width="2.2" stroke-dasharray="'+(fl?"6 4":"0")+'" opacity=".85" stroke-linecap="round"/>';
+var ex=fl?0.25*a[0]+0.5*cx+0.25*b[0]:mx,ey=fl?0.25*a[1]+0.5*cy+0.25*b[1]:my;
+g+='<text x="'+ex.toFixed(0)+'" y="'+(ey+5).toFixed(0)+'" text-anchor="middle" font-size="15" stroke="var(--card)" stroke-width="3" paint-order="stroke">'+l[2]+'</text>'});
+var placed=[];
+order.forEach(function(k){var t=TC[k],p=px(t[0],t[1]),nm=C[k].n[L],pr=t[3];placed.push({x:p[0]-12,y:p[1]-12,w:24,h:24});
+placed.push({x:pr[2]==="end"?p[0]-14-70:p[0]+14,y:p[1]-10,w:70,h:28})});
+NB.forEach(function(c){var p=px(c[2],c[3]);placed.push({x:p[0]-5,y:p[1]-5,w:10,h:10})});
+NB.forEach(function(c){var p=px(c[2],c[3]),x=p[0],y=p[1],t=c[L],wd=t.length*(L?5.2:9.5)+4,
+cd=[[x+7,y+3,"start",x+6,y-7],[x-7,y+3,"end",x-8-wd,y-7],[x,y-8,"middle",x-wd/2,y-18],[x,y+16,"middle",x-wd/2,y+6]],ch=cd[0];
+for(var m=0;m<4;m++){var q=cd[m],r={x:q[3],y:q[4],w:wd,h:11},ok=r.x>2&&r.x+wd<W-2&&r.y>2&&r.y+11<H-2;
+placed.forEach(function(o){if(r.x<o.x+o.w&&r.x+r.w>o.x&&r.y<o.y+o.h&&r.y+r.h>o.y)ok=false});if(ok){ch=q;break}}
+placed.push({x:ch[3],y:ch[4],w:wd,h:11});
+g+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3" fill="var(--mu)" stroke="var(--card)" stroke-width="1"/><text x="'+ch[0].toFixed(1)+'" y="'+ch[1].toFixed(1)+'" text-anchor="'+ch[2]+'" font-size="9.5" fill="var(--mu)" stroke="var(--card)" stroke-width="2.5" paint-order="stroke">'+t+'</text>'});
+order.forEach(function(k){var t=TC[k],p=px(t[0],t[1]),on=k===cur_c,pr=t[3];
+g+='<g style="cursor:pointer" onclick="goCity(\''+k+'\')">'+(on?'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="17" fill="var(--ac)" opacity=".22"/>':'')+'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+(on?8:6.5)+'" fill="var(--ac)" stroke="var(--card)" stroke-width="2.5"/>'
++'<text x="'+(p[0]+pr[0]).toFixed(1)+'" y="'+(p[1]+pr[1]).toFixed(1)+'" text-anchor="'+pr[2]+'" font-size="13.5" font-weight="700" fill="var(--tx)" stroke="var(--card)" stroke-width="3.5" paint-order="stroke">'+C[k].n[L]+'</text>'
++'<text x="'+(p[0]+pr[0]).toFixed(1)+'" y="'+(p[1]+pr[1]+13).toFixed(1)+'" text-anchor="'+pr[2]+'" font-size="10" fill="var(--ac)" font-weight="600" stroke="var(--card)" stroke-width="3" paint-order="stroke">'+t[2]+'</text></g>'});
+g+='<text x="340" y="20" text-anchor="middle" font-size="10" font-weight="700" fill="var(--tx)">N</text><path d="M340 23l-4 9h8z" fill="var(--tx)"/></g></svg>';
+$("map").innerHTML=g+'<div class="mu" style="margin-top:6px">'+u("lg")+'</div><div class="mu">'+(D[cur].st[L]!=="—"?"🏨 "+D[cur].st[L]+" · ":"")+'<a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(C[D[cur].c].q)+'">'+u("open")+'</a></div>';
+}
+function goCity(k){for(var i=0;i<D.length;i++)if(D[i].c===k){sel(i);return}}
+function sel(i){cur=i;location.hash="d"+(i+1);render();window.scrollTo(0,0)}
+var WT={
+rome:{n:["台伯河","Tiber"],l:[[41.933,12.466],[41.9205,12.4716],[41.9059,12.4706],[41.9026,12.4663],[41.9005,12.4643],[41.8938,12.4718],[41.8895,12.4778],[41.8883,12.4797],[41.8812,12.4765],[41.875,12.4745]]},
+florence:{n:["阿诺河","Arno"],l:[[43.774,11.23],[43.7728,11.2395],[43.7704,11.2457],[43.7686,11.2503],[43.768,11.2531],[43.7664,11.2593],[43.764,11.267],[43.761,11.277]]},
+paris:{n:["塞纳河","Seine"],l:[[48.85,2.275],[48.8553,2.2879],[48.8602,2.2926],[48.8637,2.301],[48.8639,2.3135],[48.8626,2.3188],[48.8601,2.33],[48.8583,2.3375],[48.857,2.3412],[48.853,2.3499],[48.8497,2.36]]},
+barcelona:{n:["地中海","Mediterranean"],s:[[41.34,2.14],[41.358,2.165],[41.3735,2.18],[41.379,2.1905],[41.396,2.212],[41.413,2.23],[41.5,2.4],[41.2,2.4]]}};
+function legacyDayMap(){
+var q=P[cur],s=q.p,n=s.length,one=n<2,W=WT[D[cur].c],H=250,i;
+var la=s.map(function(x){return x[0]}),lo=s.map(function(x){return x[1]}),
+a=Math.min.apply(0,la),b=Math.max.apply(0,la),c0=Math.min.apply(0,lo),d0=Math.max.apply(0,lo),
+k=Math.cos((a+b)/2*Math.PI/180),w=Math.max((d0-c0)*k,1e-4),h=Math.max(b-a,1e-4),
+sc=Math.min(270/w,150/h),ox=(360-w*sc)/2,oy=(H-h*sc)/2-4;
+var pr=function(x,y){return one?[180,112]:[ox+(y-c0)*k*sc,oy+(b-x)*sc]};
+var pts=function(arr){return arr.map(function(x){var p=pr(x[0],x[1]);return p[0].toFixed(1)+","+p[1].toFixed(1)}).join(" ")};
+var pt=s.map(function(x){return pr(x[0],x[1])});
+var g='<svg viewBox="0 0 360 '+H+'" role="img" aria-label="route"><defs><clipPath id="cp"><rect width="360" height="'+H+'" rx="10"/></clipPath><pattern id="gp" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="var(--ln)" stroke-width=".6"/></pattern></defs><g clip-path="url(#cp)"><rect width="360" height="'+H+'" fill="var(--chip)"/><rect width="360" height="'+H+'" fill="url(#gp)"/>';
+if(!one&&W){
+if(W.s){g+='<polygon points="'+pts(W.s)+'" fill="#6aa6d8" opacity=".3"/>';var sp=pr(W.s[2][0]-0.012,W.s[2][1]+0.014);g+='<text x="'+sp[0].toFixed(0)+'" y="'+sp[1].toFixed(0)+'" font-size="11" font-style="italic" fill="#4a86b8">'+W.n[L]+'</text>'}
+if(W.l){g+='<polyline points="'+pts(W.l)+'" fill="none" stroke="#6aa6d8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity=".38"/>';
+var best=null,bd=1e9;W.l.forEach(function(x){var p=pr(x[0],x[1]),dd=Math.hypot(p[0]-180,p[1]-125);if(p[0]>20&&p[0]<340&&p[1]>20&&p[1]<H-20&&dd<bd){bd=dd;best=p}});
+if(best)g+='<text x="'+(best[0]+8).toFixed(0)+'" y="'+(best[1]+16).toFixed(0)+'" font-size="10" font-style="italic" fill="#4a86b8">'+W.n[L]+'</text>'}}
+var km=0,tot=0,legs=[0];
+for(i=1;i<n;i++){var dy=(s[i][0]-s[i-1][0])*111.2,dx=(s[i][1]-s[i-1][1])*111.2*k,sk=Math.sqrt(dx*dx+dy*dy),rd=sk*1.3,wk=rd<=2.2,mn=Math.max(1,Math.round(wk?rd/4.8*60:rd/(rd>12?45:20)*60+10));km+=rd;tot+=mn;
+legs.push({rd:rd,mn:mn,em:rd>12?"🚌":wk?"🚶":"🚇"});
+var p0=pt[i-1],p1=pt[i],len=Math.hypot(p1[0]-p0[0],p1[1]-p0[1]);
+g+='<line x1="'+p0[0].toFixed(1)+'" y1="'+p0[1].toFixed(1)+'" x2="'+p1[0].toFixed(1)+'" y2="'+p1[1].toFixed(1)+'" stroke="var(--ac)" stroke-width="3" stroke-linecap="round"'+(wk?'':' stroke-dasharray="7 5"')+' opacity=".85"/>';
+if(len>30){var mx=(p0[0]+p1[0])/2,my=(p0[1]+p1[1])/2,dg=Math.atan2(p1[1]-p0[1],p1[0]-p0[0])*180/Math.PI;
+g+='<polygon points="-6,-5 6,0 -6,5" transform="translate('+mx.toFixed(1)+','+my.toFixed(1)+') rotate('+dg.toFixed(0)+')" fill="var(--ac)" stroke="var(--chip)" stroke-width="1.5"/>'}}
+var placed=pt.map(function(p){return{x:p[0]-13,y:p[1]-13,w:26,h:26}});
+pt.forEach(function(p,j){g+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="11" fill="'+(j?'var(--ac)':'#2e8b57')+'" stroke="var(--card)" stroke-width="2"/><text x="'+p[0].toFixed(1)+'" y="'+(p[1]+4).toFixed(1)+'" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">'+(j+1)+'</text>'});
+pt.forEach(function(p,j){var t=s[j][L+2].replace(/^(附近：|Nearby: )/,""),wd=t.length*(L?5.8:11)+6,x=p[0],y=p[1],
+cd=[[x+15,y+4,"start",x+14,y-8],[x-15,y+4,"end",x-16-wd,y-8],[x,y-17,"middle",x-wd/2,y-30],[x,y+27,"middle",x-wd/2,y+15]],ch=cd[0];
+for(var m=0;m<4;m++){var c=cd[m],r={x:c[3],y:c[4],w:wd,h:14},ok=r.x>2&&r.x+wd<358&&r.y>2&&r.y+14<H-2;
+placed.forEach(function(o){if(r.x<o.x+o.w&&r.x+r.w>o.x&&r.y<o.y+o.h&&r.y+r.h>o.y)ok=false});if(ok){ch=c;break}}
+placed.push({x:ch[3],y:ch[4],w:wd,h:14});
+g+='<text x="'+ch[0].toFixed(1)+'" y="'+ch[1].toFixed(1)+'" text-anchor="'+ch[2]+'" font-size="11" font-weight="600" fill="var(--tx)" stroke="var(--chip)" stroke-width="3" paint-order="stroke">'+t+'</text>'});
+if(!one){var stp=[0.1,0.2,0.5,1,2,5,10,20,50],bs=0.1;stp.forEach(function(v){if(v*sc/111.2<=70)bs=v});var bw=bs*sc/111.2;
+g+='<path d="M16 '+(H-14)+'h'+bw.toFixed(1)+'M16 '+(H-18)+'v8M'+(16+bw).toFixed(1)+' '+(H-18)+'v8" stroke="var(--tx)" stroke-width="1.5" fill="none"/><text x="'+(22+bw).toFixed(1)+'" y="'+(H-10)+'" font-size="10" fill="var(--tx)">'+bs+' km</text>'}
+g+='<text x="340" y="20" text-anchor="middle" font-size="10" font-weight="700" fill="var(--tx)">N</text><path d="M340 23l-4 9h8z" fill="var(--tx)"/></g></svg>';
+var f=function(x){return x[0]+","+x[1]};
+var url=one?"https://www.google.com/maps/search/?api=1&query="+f(s[0]):"https://www.google.com/maps/dir/?api=1&origin="+f(s[0])+"&destination="+f(s[n-1])+(n>2?"&waypoints="+s.slice(1,-1).slice(0,8).map(f).join("%7C"):"")+"&travelmode="+q.m;
+var ol='<ol style="margin:10px 0 0;padding-left:22px">'+s.map(function(x,j){return '<li><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+f(x)+'">'+x[L+2]+'</a>'+(j?'<div class="mu">'+legs[j].em+" ≈ "+legs[j].mn+u("min")+" · "+legs[j].rd.toFixed(1)+" km</div>":"")+'</li>'}).join("")+'</ol>';
+return '<div class="card"><h2>'+u("rt")+'</h2>'+g+ol+'<div class="mu" style="margin-top:8px">'+(one?"":u("tot")+" "+tot+u("min")+" · "+km.toFixed(1)+" km · ")+u("est")+'</div><p style="margin:8px 0 0"><a target="_blank" rel="noopener" href="'+url+'">'+u("rtn")+' ↗</a></p></div>';
+}
+// Points of interest and representative station entrances (approximate positions); base streets and station labels are OSM map data.
+var ST={
+rome:[
+[41.9009,12.5018,'Roma Termini / 罗马特米尼','rail'],[41.9013,12.4947,'Repubblica / 共和国站','metro'],[41.9062,12.4805,'Spagna / 西班牙广场站','metro'],[41.8916,12.4914,'Colosseo / 斗兽场站','metro'],[41.9065,12.4565,'Ottaviano / 奥塔维亚诺站','metro'],[41.9022,12.4617,'Lepanto / 莱潘托站','metro'],[41.8958,12.4821,'Venezia / 威尼斯广场站','metro'],[41.8881,12.4801,'Circo Massimo / 大竞技场站','metro']],
+florence:[
+[43.7767,11.2481,'Firenze S. M. Novella / 新圣母玛利亚站','rail'],[43.7698,11.2547,'Ponte Vecchio / 老桥周边公交','metro'],[43.7681,11.2555,'Uffizi / 乌菲兹附近公交','metro'],[43.7733,11.2466,'Alamanni–Stazione / 电车站','metro'],[43.7710,11.2435,'Unità / 电车站','metro']],
+barcelona:[
+[41.3870,2.1699,'Catalunya / 加泰罗尼亚广场站','metro'],[41.3856,2.1704,'Universitat / 大学站','metro'],[41.3932,2.1650,'Passeig de Gràcia / 格拉西亚大道站','metro'],[41.4023,2.1742,'Sagrada Família / 圣家堂站','metro'],[41.4010,2.1618,'Diagonal / 对角线站','metro'],[41.4103,2.1349,'Av. Tibidabo / 提比达波大道站','rail'],[41.3845,2.1704,'Plaça Catalunya / 机场巴士站','metro']],
+paris:[
+[48.8617,2.3471,'Châtelet–Les Halles / 沙特莱大堂站','rail'],[48.8629,2.3448,'Châtelet / 沙特莱地铁站','metro'],[48.8623,2.3357,'Palais Royal–Musée du Louvre / 卢浮宫站','metro'],[48.8661,2.3211,'Concorde / 协和站','metro'],[48.8736,2.2953,'Charles de Gaulle–Étoile / 凯旋门站','rail'],[48.8549,2.2892,'Bir-Hakeim / 比尔阿凯姆站','metro'],[48.8607,2.2986,'Champ de Mars–Tour Eiffel / 战神广场站','rail']]
+};
+var streetMap=null,stationLayer=null,poiLayer=null,routeLayer=null,streetStationVisible=true,streetPoiVisible=true;
+function dayMap(){
+var heading=L?'Real street map · stops & transit':'真实街道地图 · 景点与交通站';
+var note=L?'Zoom to see street names, metro and rail lines where mapped. Blue = metro/bus; green = train; purple = airport. Orange numbered pins = day stops. Connecting lines indicate stop order, not a navigable route.':'放大可查看街道名称、地铁及铁路线路（以地图收录内容为准）。蓝色=地铁/公交，绿色=火车，橙色数字=当日景点。连线仅表示游览顺序，并非真实道路导航。';
+var old=legacyDayMap();
+var fallback='<p class="mu" style="margin:8px 0">'+(L?'If the map is blank, expand the backup below or open the route in Google Maps.':'如果街道地图无法显示，请展开下方备用地图，或直接使用 Google Maps 查看路线。')+'</p>';
+return '<div class="card"><h2>🗺 '+heading+'</h2><div class="map-tools"><button id="toggleStation" class="active" onclick="toggleStreetLayer(&quot;station&quot;)">'+(L?'Stations':'地铁 / 火车站')+'</button><button id="togglePoi" class="active" onclick="toggleStreetLayer(&quot;poi&quot;)">'+(L?'Day stops':'当日景点')+'</button><button onclick="fitStreetMap()">'+(L?'Show entire route':'查看完整路线')+'</button></div><div id="streetMap"><div class="mu" style="padding:20px">'+(L?'Loading street map…':'正在加载街道地图…')+'</div></div><p class="mu">'+note+'</p></div><details class="card"><summary>'+(L?'Route list, distance estimates and schematic backup':'路线清单、距离估算与备用示意图')+'</summary>'+old+'</details>';
+}
+function pinIcon(label,type){return window.L.divIcon({className:'',html:'<div class="map-pin '+(type||'')+'" style="width:25px;height:25px">'+label+'</div>',iconSize:[29,29],iconAnchor:[14,14]})}
+function fitStreetMap(){if(!streetMap)return;var pts=P[cur].p.map(function(p){return [p[0],p[1]]});if(pts.length===1)streetMap.setView(pts[0],14);else streetMap.fitBounds(window.L.latLngBounds(pts).pad(.22),{maxZoom:15});}
+function toggleStreetLayer(which){if(!streetMap)return;if(which==='station'){streetStationVisible=!streetStationVisible;if(streetStationVisible)stationLayer.addTo(streetMap);else streetMap.removeLayer(stationLayer)}else{streetPoiVisible=!streetPoiVisible;if(streetPoiVisible)poiLayer.addTo(streetMap);else streetMap.removeLayer(poiLayer)}document.getElementById(which==='station'?'toggleStation':'togglePoi').classList.toggle('active',which==='station'?streetStationVisible:streetPoiVisible)}
+function initStreetMap(){
+var el=document.getElementById('streetMap');if(!el)return;
+if(!window.L||!window.L.map){el.innerHTML='<p class="mu" style="padding:12px">'+(L?'Street map requires internet; use the schematic backup below.':'街道地图需要联网加载；可展开下方备用示意图。')+'</p>';return}
+if(streetMap){streetMap.remove();streetMap=null}
+try{
+streetMap=window.L.map(el,{scrollWheelZoom:false,zoomControl:true});
+window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(streetMap);
+var coords=P[cur].p.map(function(p){return [p[0],p[1]]});
+routeLayer=window.L.polyline(coords,{color:'#b4472f',weight:3,opacity:.75,dashArray:'7,7'}).addTo(streetMap);
+poiLayer=window.L.layerGroup();stationLayer=window.L.layerGroup();
+P[cur].p.forEach(function(p,i){var name=p[L+2];var gm='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p[0]+','+p[1]);window.L.marker([p[0],p[1]],{icon:pinIcon(String(i+1))}).bindPopup('<b>'+(i+1)+'. '+name+'</b><p><a target="_blank" rel="noopener" href="'+gm+'">Google Maps ↗</a></p>').addTo(poiLayer)});
+ST[D[cur].c].forEach(function(p){var kind=p[3]==='rail'?'rail':p[3]==='air'?'air':'station',gm='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p[0]+','+p[1]);window.L.marker([p[0],p[1]],{icon:pinIcon(kind==='rail'?'🚆':'M',kind)}).bindPopup('<b>'+p[2]+'</b><p><a target="_blank" rel="noopener" href="'+gm+'">Google Maps ↗</a></p>').addTo(stationLayer)});
+poiLayer.addTo(streetMap);stationLayer.addTo(streetMap);streetPoiVisible=true;streetStationVisible=true;fitStreetMap();setTimeout(function(){if(streetMap)streetMap.invalidateSize()},80);
+}catch(e){el.innerHTML='<p class="mu">'+(L?'Map unavailable; use the backup schematic.':'地图加载失败，请使用下方备用示意图。')+'</p>'}
+}
+function render(){
+var d=D[cur],c=C[d.c],w=c.wx;
+document.documentElement.lang=L?"en":"zh";$("lang").textContent=L?"中文":"EN";
+$("ti").textContent=u("ti");$("mh").textContent=u("mh");$("ah").textContent=u("ah");$("q").placeholder=u("ph");$("go").textContent=u("go");
+$("qs").innerHTML='<button class="chip" onclick="$(\'q\').value=this.textContent">'+u("q1")+'</button><button class="chip" onclick="$(\'q\').value=this.textContent">'+u("q2")+'</button>';$("ans").textContent="";
+var days=Math.ceil((new Date(2026,10,7)-new Date())/864e5);
+$("su").textContent=u("su")+(days>0?" · "+u("cd").replace("%n",days):"");
+$("tabs").innerHTML=D.map(function(x,i){return '<button class="chip'+(i===cur?" on":"")+'" onclick="sel('+i+')">'+x.d+'<small>'+x.c.slice(0,0)+C[x.c].n[L]+'</small></button>'}).join("");
+var h='<div class="card"><h2>'+d.d+" "+d.w[L]+" · "+c.n[L]+'</h2>';
+h+=d.it.map(function(r){return '<div class="it"><div class="tm">'+T(r[0])+'</div><div>'+r[L+1]+'</div></div>'}).join("")+'</div>';
+h+=dayMap();
+h+='<div class="row"><div class="card"><h2>'+u("wx")+'</h2><div class="wx"><span style="font-size:34px">'+w[2]+'</span><div><b>'+w[0]+"–"+w[1]+'°C</b><div>'+w[3][L]+'</div></div></div><div class="mu" style="margin-top:6px">🌅 '+u("sun")+c.sun+" · "+u("typ")+'<br><a target="_blank" rel="noopener" href="https://www.google.com/search?q='+encodeURIComponent("weather "+c.q)+'">'+u("fc")+'</a></div></div>';
+h+='<div class="card"><h2>'+u("tr")+'</h2><p style="margin:0">'+d.tr[L]+'</p></div></div>';
+h+='<div class="card"><h2>'+u("pr")+'</h2><p style="margin:0">'+d.pr[L]+'</p></div>';
+h+='<div class="card"><h2>'+u("cul")+'</h2><ul>'+c.cul.map(function(x){return '<li>'+x[L]+'</li>'}).join("")+'</ul></div>';
+h+='<p class="mu">'+u("note")+'</p>';
+$("day").innerHTML=h;map();initStreetMap();
+var el=document.querySelector(".chip.on");if(el&&el.scrollIntoView)el.scrollIntoView({inline:"center",block:"nearest"});
+}
+$("lang").onclick=function(){L=1-L;render()};
+var smp=null;
+try{if(window.claude&&claude.use)claude.use("sample").then(function(s){if(s){smp=s;$("ask").hidden=false}}).catch(function(){})}catch(e){}
+$("go").onclick=function(){
+var q=$("q").value.trim();if(!q||!smp)return;
+var d=D[cur],c=C[d.c],b=$("go");
+var p="You are a concise travel assistant. Trip: Italy, Spain, France, November 2026. Selected day: "+d.d+" in "+c.q+". Stay: "+d.st[1]+". Itinerary: "+d.it.map(function(r){return (Array.isArray(r[0])?r[0][1]:r[0])+" "+r[2]}).join("; ")+". Transport notes: "+d.tr[1]+". Reply in "+(L?"English":"Simplified Chinese")+", under 150 words. If you are unsure about live information (weather, timetables, prices, opening hours), say so and suggest checking an official source. Question: "+q;
+b.disabled=true;$("ans").textContent=u("busy");
+smp(p,{cache:false,onText:function(r){$("ans").textContent=r.text}}).then(function(r){if(r&&r.text)$("ans").textContent=r.text}).catch(function(){$("ans").textContent=u("err")}).then(function(){b.disabled=false});
+};
+var hm=/^#d(\d+)$/.exec(location.hash);
+if(hm&&D[hm[1]-1])cur=hm[1]-1;
+else{var n=new Date(),i=D.findIndex(function(x){var m=x.d.split("/");return n.getFullYear()===2026&&n.getMonth()+1===+m[0]&&n.getDate()===+m[1]});if(i>=0)cur=i}
+window.addEventListener("hashchange",function(){var m=/^#d(\d+)$/.exec(location.hash);if(m&&D[m[1]-1]&&D[m[1]-1]!==D[cur]){cur=m[1]-1;render()}});
+render();
+</script>
+</body>
+</html>
