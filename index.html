@@ -39,8 +39,8 @@ textarea{width:100%;box-sizing:border-box;font:inherit;color:var(--tx);backgroun
 #ans{white-space:pre-wrap;margin-top:10px}
 #qs{display:flex;gap:6px;flex-wrap:wrap}
 </style>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script defer src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" onerror="var s=document.createElement('script');s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';s.onload=function(){if(typeof initStreetMap==='function')initStreetMap()};document.head.appendChild(s)"></script>
 <style>
 #streetMap{height:360px;width:100%;border-radius:10px;z-index:0;background:var(--chip)}
 .map-tools{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.map-tools button{padding:5px 9px;border-radius:9px;border:1px solid var(--ln);background:var(--chip);color:var(--tx);font-size:12px}.map-tools button.active{color:#fff;background:var(--ac)}
@@ -278,7 +278,13 @@ function fitStreetMap(){if(!streetMap)return;var pts=P[cur].p.map(function(p){re
 function toggleStreetLayer(which){if(!streetMap)return;if(which==='station'){streetStationVisible=!streetStationVisible;if(streetStationVisible)stationLayer.addTo(streetMap);else streetMap.removeLayer(stationLayer)}else{streetPoiVisible=!streetPoiVisible;if(streetPoiVisible)poiLayer.addTo(streetMap);else streetMap.removeLayer(poiLayer)}document.getElementById(which==='station'?'toggleStation':'togglePoi').classList.toggle('active',which==='station'?streetStationVisible:streetPoiVisible)}
 function initStreetMap(){
 var el=document.getElementById('streetMap');if(!el)return;
-if(!window.L||!window.L.map){el.innerHTML='<p class="mu" style="padding:12px">'+(L?'Street map requires internet; use the schematic backup below.':'街道地图需要联网加载；可展开下方备用示意图。')+'</p>';return}
+if(!window.L||!window.L.map){
+var pts=P[cur].p,lat=pts.map(function(p){return p[0]}),lng=pts.map(function(p){return p[1]}),a=Math.min.apply(null,lat)-.008,b=Math.max.apply(null,lat)+.008,c=Math.min.apply(null,lng)-.012,d=Math.max.apply(null,lng)+.012;
+var bbox=[c,a,d,b].join(','),center=pts[0][0]+','+pts[0][1];
+el.innerHTML='<iframe title="'+(L?'Interactive OpenStreetMap':'OpenStreetMap 街道地图')+'" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" style="border:0;width:100%;height:100%;border-radius:10px" src="https://www.openstreetmap.org/export/embed.html?bbox='+encodeURIComponent(bbox)+'&layer=mapnik&marker='+encodeURIComponent(center)+'"></iframe>';
+var info=document.createElement('p');info.className='mu';info.style.margin='8px 0';
+info.innerHTML=(L?'Enhanced map library did not load; showing a street-map fallback.':'地图交互组件未能加载，已切换到街道地图备用模式。')+' <a target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat='+pts[0][0]+'&mlon='+pts[0][1]+'#map=14/'+pts[0][0]+'/'+pts[0][1]+'">'+(L?'Open full map':'打开完整街道地图')+'</a>';
+el.insertAdjacentElement('afterend',info);return}
 if(streetMap){streetMap.remove();streetMap=null}
 try{
 streetMap=window.L.map(el,{scrollWheelZoom:false,zoomControl:true});
