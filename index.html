@@ -43,7 +43,7 @@ textarea{width:100%;box-sizing:border-box;font:inherit;color:var(--tx);backgroun
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" onerror="var s=document.createElement('script');s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';s.onload=function(){if(typeof initStreetMap==='function')initStreetMap()};document.head.appendChild(s)"></script>
 <style>
 #streetMap{height:360px;width:100%;border-radius:10px;z-index:0;background:var(--chip)}
-.map-tools{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.map-tools button{padding:5px 9px;border-radius:9px;border:1px solid var(--ln);background:var(--chip);color:var(--tx);font-size:12px}.map-tools button.active{color:#fff;background:var(--ac)}
+.map-tools{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.map-tools button{padding:5px 9px;border-radius:9px;border:1px solid var(--ln);background:var(--chip);color:var(--tx);font-size:12px}.map-tools button.active{color:#fff;background:var(--ac)}.map-tools{position:relative;z-index:20}.map-tools button{touch-action:manipulation;min-height:36px}.leaflet-container{z-index:0!important}
 .map-pin{background:var(--ac);color:#fff;border:2px solid white;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;box-shadow:0 1px 5px #0005}.map-pin.station{background:#2363b9}.map-pin.rail{background:#248158}.map-pin.air{background:#6c49a8}
 .leaflet-popup-content{font:13px/1.45 -apple-system,'PingFang SC',sans-serif}.leaflet-container{font:inherit}details summary{cursor:pointer;color:var(--ac);font-weight:600}
 </style>
@@ -266,16 +266,17 @@ paris:[
 [48.8617,2.3471,'Châtelet–Les Halles / 沙特莱大堂站','rail'],[48.8629,2.3448,'Châtelet / 沙特莱地铁站','metro'],[48.8623,2.3357,'Palais Royal–Musée du Louvre / 卢浮宫站','metro'],[48.8661,2.3211,'Concorde / 协和站','metro'],[48.8736,2.2953,'Charles de Gaulle–Étoile / 凯旋门站','rail'],[48.8549,2.2892,'Bir-Hakeim / 比尔阿凯姆站','metro'],[48.8607,2.2986,'Champ de Mars–Tour Eiffel / 战神广场站','rail']]
 };
 var streetMap=null,stationLayer=null,poiLayer=null,routeLayer=null,streetStationVisible=true,streetPoiVisible=true;
+var EXTRA_POI={0:[[41.9022,12.4539,'圣彼得广场','St Peter’s Square']],1:[[41.8990,12.4730,'四河喷泉','Fountain of the Four Rivers'],[41.8979,12.4768,'万神庙广场','Piazza della Rotonda']],2:[[43.7731,11.2560,'大教堂广场','Piazza del Duomo']],3:[[43.7655,11.2500,'碧提宫广场','Piazza de Pitti']],4:[[41.3837,2.1765,'亲吻墙','Kissing Wall']],6:[[41.3908,2.1650,'格拉西亚大道','Passeig de Gràcia']],7:[[48.8610,2.3470,'沙特莱广场','Châtelet']],8:[[48.8600,2.3260,'杜乐丽花园东侧','Tuileries East'],[48.8688,2.3078,'香榭丽舍大街','Champs-Élysées'],[48.8584,2.2945,'埃菲尔铁塔','Eiffel Tower']],9:[[49.0097,2.5479,'戴高乐机场','CDG Airport']]};
 function dayMap(){
 var heading=L?'Real street map · stops & transit':'真实街道地图 · 景点与交通站';
 var note=L?'Zoom to see street names, metro and rail lines where mapped. Blue = metro/bus; green = train; purple = airport. Orange numbered pins = day stops. Connecting lines indicate stop order, not a navigable route.':'放大可查看街道名称、地铁及铁路线路（以地图收录内容为准）。蓝色=地铁/公交，绿色=火车，橙色数字=当日景点。连线仅表示游览顺序，并非真实道路导航。';
 var old=legacyDayMap();
 var fallback='<p class="mu" style="margin:8px 0">'+(L?'If the map is blank, expand the backup below or open the route in Google Maps.':'如果街道地图无法显示，请展开下方备用地图，或直接使用 Google Maps 查看路线。')+'</p>';
-return '<div class="card"><h2>🗺 '+heading+'</h2><div class="map-tools"><button id="toggleStation" class="active" onclick="toggleStreetLayer(&quot;station&quot;)">'+(L?'Stations':'地铁 / 火车站')+'</button><button id="togglePoi" class="active" onclick="toggleStreetLayer(&quot;poi&quot;)">'+(L?'Day stops':'当日景点')+'</button><button onclick="fitStreetMap()">'+(L?'Show entire route':'查看完整路线')+'</button></div><div id="streetMap"><div class="mu" style="padding:20px">'+(L?'Loading street map…':'正在加载街道地图…')+'</div></div><p class="mu">'+note+'</p></div><details class="card"><summary>'+(L?'Route list, distance estimates and schematic backup':'路线清单、距离估算与备用示意图')+'</summary>'+old+'</details>';
+return '<div class="card"><h2>🗺 '+heading+'</h2><div class="map-tools"><button type="button" id="toggleStation" class="active" onclick="toggleStreetLayer(&quot;station&quot;)">'+(L?'Stations':'地铁 / 火车站')+'</button><button type="button" id="togglePoi" class="active" onclick="toggleStreetLayer(&quot;poi&quot;)">'+(L?'Day stops':'当日景点')+'</button><button type="button" onclick="fitStreetMap()">'+(L?'Show entire route':'查看完整路线')+'</button></div><div id="streetMap"><div class="mu" style="padding:20px">'+(L?'Loading street map…':'正在加载街道地图…')+'</div></div><p class="mu">'+note+'</p></div><details class="card"><summary>'+(L?'Route list, distance estimates and schematic backup':'路线清单、距离估算与备用示意图')+'</summary>'+old+'</details>';
 }
 function pinIcon(label,type){return window.L.divIcon({className:'',html:'<div class="map-pin '+(type||'')+'" style="width:25px;height:25px">'+label+'</div>',iconSize:[29,29],iconAnchor:[14,14]})}
-function fitStreetMap(){if(!streetMap)return;var pts=P[cur].p.map(function(p){return [p[0],p[1]]});if(pts.length===1)streetMap.setView(pts[0],14);else streetMap.fitBounds(window.L.latLngBounds(pts).pad(.22),{maxZoom:15});}
-function toggleStreetLayer(which){if(!streetMap)return;if(which==='station'){streetStationVisible=!streetStationVisible;if(streetStationVisible)stationLayer.addTo(streetMap);else streetMap.removeLayer(stationLayer)}else{streetPoiVisible=!streetPoiVisible;if(streetPoiVisible)poiLayer.addTo(streetMap);else streetMap.removeLayer(poiLayer)}document.getElementById(which==='station'?'toggleStation':'togglePoi').classList.toggle('active',which==='station'?streetStationVisible:streetPoiVisible)}
+function fitStreetMap(){if(!streetMap){initStreetMap();return}var pts=P[cur].p.concat(EXTRA_POI[cur]||[]).map(function(p){return [p[0],p[1]]});if(pts.length===1)streetMap.setView(pts[0],14);else streetMap.fitBounds(window.L.latLngBounds(pts).pad(.22),{maxZoom:15});}
+function toggleStreetLayer(which){if(!streetMap){initStreetMap();if(!streetMap)return;}if(which==='station'){streetStationVisible=!streetStationVisible;if(streetStationVisible)stationLayer.addTo(streetMap);else streetMap.removeLayer(stationLayer)}else{streetPoiVisible=!streetPoiVisible;if(streetPoiVisible)poiLayer.addTo(streetMap);else streetMap.removeLayer(poiLayer)}document.getElementById(which==='station'?'toggleStation':'togglePoi').classList.toggle('active',which==='station'?streetStationVisible:streetPoiVisible)}
 function initStreetMap(){
 var el=document.getElementById('streetMap');if(!el)return;
 if(!window.L||!window.L.map){
@@ -292,7 +293,8 @@ window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,
 var coords=P[cur].p.map(function(p){return [p[0],p[1]]});
 routeLayer=window.L.polyline(coords,{color:'#b4472f',weight:3,opacity:.75,dashArray:'7,7'}).addTo(streetMap);
 poiLayer=window.L.layerGroup();stationLayer=window.L.layerGroup();
-P[cur].p.forEach(function(p,i){var name=p[L+2];var gm='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p[0]+','+p[1]);window.L.marker([p[0],p[1]],{icon:pinIcon(String(i+1))}).bindPopup('<b>'+(i+1)+'. '+name+'</b><p><a target="_blank" rel="noopener" href="'+gm+'">Google Maps ↗</a></p>').addTo(poiLayer)});
+var allStops=P[cur].p.concat((EXTRA_POI[cur]||[]).map(function(p){return [p[0],p[1],p[2],p[3]]}));
+allStops.forEach(function(p,i){var name=p[L+2];var gm='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p[0]+','+p[1]);window.L.marker([p[0],p[1]],{icon:pinIcon(String(i+1))}).bindPopup('<b>'+(i+1)+'. '+name+'</b><p><a target="_blank" rel="noopener" href="'+gm+'">Google Maps ↗</a></p>').addTo(poiLayer)});
 ST[D[cur].c].forEach(function(p){var kind=p[3]==='rail'?'rail':p[3]==='air'?'air':'station',gm='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p[0]+','+p[1]);window.L.marker([p[0],p[1]],{icon:pinIcon(kind==='rail'?'🚆':'M',kind)}).bindPopup('<b>'+p[2]+'</b><p><a target="_blank" rel="noopener" href="'+gm+'">Google Maps ↗</a></p>').addTo(stationLayer)});
 poiLayer.addTo(streetMap);stationLayer.addTo(streetMap);streetPoiVisible=true;streetStationVisible=true;fitStreetMap();setTimeout(function(){if(streetMap)streetMap.invalidateSize()},80);
 }catch(e){el.innerHTML='<p class="mu">'+(L?'Map unavailable; use the backup schematic.':'地图加载失败，请使用下方备用示意图。')+'</p>'}
@@ -313,7 +315,7 @@ h+='<div class="card"><h2>'+u("tr")+'</h2><p style="margin:0">'+d.tr[L]+'</p></d
 h+='<div class="card"><h2>'+u("pr")+'</h2><p style="margin:0">'+d.pr[L]+'</p></div>';
 h+='<div class="card"><h2>'+u("cul")+'</h2><ul>'+c.cul.map(function(x){return '<li>'+x[L]+'</li>'}).join("")+'</ul></div>';
 h+='<p class="mu">'+u("note")+'</p>';
-$("day").innerHTML=h;map();initStreetMap();
+if(streetMap){try{streetMap.off();streetMap.remove()}catch(e){}streetMap=null} $("day").innerHTML=h;map();initStreetMap();
 var el=document.querySelector(".chip.on");if(el&&el.scrollIntoView)el.scrollIntoView({inline:"center",block:"nearest"});
 }
 $("lang").onclick=function(){L=1-L;render()};
