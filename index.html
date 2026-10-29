@@ -58,7 +58,7 @@ textarea{width:100%;box-sizing:border-box;font:inherit;color:var(--tx);backgroun
 <div class="card" id="ask" hidden><h2 id="ah"></h2><div id="qs"></div><textarea id="q" rows="2" maxlength="300"></textarea><button id="go"></button><div id="ans"></div></div>
 </main>
 <script>
-var L=(navigator.language||"").indexOf("zh")===0?0:1;
+var langIndex=(navigator.language||"").indexOf("zh")===0?0:1;
 var C={
 rome:{n:["罗马","Rome"],xy:[295,243],q:"Rome Italy",wx:[9,17,"🌦",["11月为雨季，多云间阵雨，早晚偏凉","Rainy season: cloudy with showers, cool mornings/evenings"]],sun:"17:00",cul:[
 ["小费不强制；账单常含 coperto（座位费）","Tipping is optional; bills often include coperto (cover charge)"],
@@ -160,8 +160,8 @@ var P=[
 ];
 var UI={lg:["🔴 行程城市（点击切换）　⚪ 附近主要景点城市　🚆火车　✈️飞机","🔴 Trip cities (tap to switch)　⚪ Nearby highlights　🚆 train　✈️ flight"],min:[" 分钟"," min"],tot:["合计移动约","Total travel ≈"],est:["耗时与路程由直线距离粗略推算，不代表真实导航结果；河流与海岸为示意","Times & distances are rough estimates derived from straight-line distance; rivers and coast are schematic"],rt:["🗺 当天路线图","🗺 Route map"],rtn:["在 Google 地图查看路线","Open route in Google Maps"],km:["各点直线距离合计约","Straight-line total ≈"],sch:["示意图（按真实坐标缩放，无街道）","Schematic from real coordinates (no streets)"],ah:["🤖 问 Claude（针对所选日期）","🤖 Ask Claude (about the selected day)"],ph:["例如：这天怎么从酒店去第一个景点？","e.g. How do I get from the hotel to the first stop?"],go:["提问","Ask"],busy:["思考中…","Thinking…"],err:["暂时无法回答，请稍后再试","Couldn’t answer right now – please try again"],q1:["这天需要带什么？","What should I bring today?"],q2:["景点之间怎么走最方便？","Best way to get between today’s stops?"],ti:["欧洲四国行 · 意·西·法","Europe Trip · Italy · Spain · France"],su:["11月7日–16日 · 罗马 → 佛罗伦萨 → 巴塞罗那 → 巴黎","Nov 7–16 · Rome → Florence → Barcelona → Paris"],mh:["📍 目的地地图（点击城市）","📍 Destination map (tap a city)"],it:["🗓 当天行程","🗓 Itinerary"],wx:["🌤 当天天气","🌤 Weather"],stay:["🏨 住宿","🏨 Stay"],tr:["🚆 交通方式","🚆 Getting around"],pr:["🎒 交通与出行准备","🎒 Prep & tickets"],cul:["🏛 当地人文与实用提示","🏛 Local culture & tips"],open:["在地图中打开","Open in Maps"],fc:["查看实时预报","Live forecast"],sun:["日落约","Sunset ~"],typ:["11月典型气候（实时预报见下方链接）","Typical November climate (see link for live forecast)"],cd:["距出发还有 %n 天","%n days to go"],note:["时差：欧洲比北京慢7小时；电压230V（欧标圆头插（视国家插座类型而定））；货币欧元","Time: Europe is 7 h behind Beijing; 230 V (Type C/F plugs); currency EUR"]};
 var cur=0,$=function(i){return document.getElementById(i)};
-function u(k){return UI[k][L]}
-function T(x){return Array.isArray(x)?x[L]:x}
+function u(k){return UI[k][langIndex]}
+function T(x){return Array.isArray(x)?x[langIndex]:x}
 var GEO={
 eu:[[2.4,53],[25,53],[25,40],[19.5,40],[19.4,41.5],[18.5,42.5],[17.2,43.2],[15.5,44.2],[14.5,45.2],[13.7,45.65],[9,44.5],[6.5,45.5],[2.4,51.05]],
 fr:[[2.4,51.05],[3.2,50.5],[4.2,49.95],[5.8,49.5],[6.4,49.4],[8.2,48.97],[7.6,47.6],[6.9,47.3],[6.1,46.3],[7,45.9],[6.9,45.1],[7.6,44.15],[7.5,43.78],[6.7,43.1],[5.4,43.2],[4.2,43.45],[3.1,43.05],[3.05,42.45],[1.7,42.5],[0.7,42.8],[-0.7,42.85],[-1.8,43.35],[-1.25,44.65],[-1.2,45.55],[-1.15,46.15],[-2.2,47.15],[-2.5,47.4],[-4.4,47.8],[-4.7,48.4],[-3.5,48.85],[-1.6,48.65],[-1.9,49.7],[-1.2,49.7],[-0.1,49.3],[0.2,49.5],[1.6,50.1],[1.6,50.9]],
@@ -183,20 +183,20 @@ var g='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="map"><defs><clipPat
 g+=ln("eu","var(--card)",.55)+ln("pt","var(--card)",.55)+ln("ib")+ln("ma")+ln("fr")+ln("co")+ln("it")+ln("si")+ln("sa");
 g+=tint("fr","#7b9fd4",.2)+tint("co","#7b9fd4",.2)+tint("it","#7fbf8f",.24)+tint("si","#7fbf8f",.24)+tint("sa","#7fbf8f",.24)+tint("ib","#e0b45a",.26)+tint("ma","#e0b45a",.26);
 var tx=function(x,y,t,sz,o,st){return '<text x="'+x.toFixed(0)+'" y="'+y.toFixed(0)+'" text-anchor="middle" font-size="'+sz+'" fill="var(--tx)" opacity="'+o+'" '+st+'>'+t+'</text>'};
-[[2.3,46.9,"法国","France"],[-3.3,40.9,"西班牙","Spain"],[13,42.9,"意大利","Italy"]].forEach(function(c){var p=px(c[0],c[1]);g+=tx(p[0],p[1],c[2+L],L?14:16,.4,'font-weight="700" letter-spacing="2"')});
-var sp=px(5.2,39.6);g+=tx(sp[0],sp[1],L?"Mediterranean":"地中海",10,.5,'font-style="italic"');
-sp=px(-5.6,45.4);g+=tx(sp[0],sp[1],L?"Atlantic":"大西洋",10,.5,'font-style="italic"');
+[[2.3,46.9,"法国","France"],[-3.3,40.9,"西班牙","Spain"],[13,42.9,"意大利","Italy"]].forEach(function(c){var p=px(c[0],c[1]);g+=tx(p[0],p[1],c[2+langIndex],langIndex?14:16,.4,'font-weight="700" letter-spacing="2"')});
+var sp=px(5.2,39.6);g+=tx(sp[0],sp[1],langIndex?"Mediterranean":"地中海",10,.5,'font-style="italic"');
+sp=px(-5.6,45.4);g+=tx(sp[0],sp[1],langIndex?"Atlantic":"大西洋",10,.5,'font-style="italic"');
 var cur_c=D[cur].c,order=["rome","florence","barcelona","paris"],lk=[["rome","florence","🚆",0],["florence","barcelona","✈️",-1],["barcelona","paris","✈️",1]];
 lk.forEach(function(l){var a=px(TC[l[0]][0],TC[l[0]][1]),b=px(TC[l[1]][0],TC[l[1]][1]),mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,fl=l[3]!==0,cx=mx,cy=my;
 if(fl){var dx=b[0]-a[0],dy=b[1]-a[1],ln2=Math.hypot(dx,dy);cx=mx+(-dy/ln2)*28*l[3];cy=my+(dx/ln2)*28*l[3]}
-g+='<path d="M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+(fl?' Q'+cx.toFixed(1)+' '+cy.toFixed(1)+' ':' L')+b[0].toFixed(1)+' '+b[1].toFixed(1)+'" fill="none" stroke="var(--ac)" stroke-width="2.2" stroke-dasharray="'+(fl?"6 4":"0")+'" opacity=".85" stroke-linecap="round"/>';
+g+='<path d="M'+a[0].toFixed(1)+' '+a[1].toFixed(1)+(fl?' Q'+cx.toFixed(1)+' '+cy.toFixed(1)+' ':' langIndex')+b[0].toFixed(1)+' '+b[1].toFixed(1)+'" fill="none" stroke="var(--ac)" stroke-width="2.2" stroke-dasharray="'+(fl?"6 4":"0")+'" opacity=".85" stroke-linecap="round"/>';
 var ex=fl?0.25*a[0]+0.5*cx+0.25*b[0]:mx,ey=fl?0.25*a[1]+0.5*cy+0.25*b[1]:my;
 g+='<text x="'+ex.toFixed(0)+'" y="'+(ey+5).toFixed(0)+'" text-anchor="middle" font-size="15" stroke="var(--card)" stroke-width="3" paint-order="stroke">'+l[2]+'</text>'});
 var placed=[];
-order.forEach(function(k){var t=TC[k],p=px(t[0],t[1]),nm=C[k].n[L],pr=t[3];placed.push({x:p[0]-12,y:p[1]-12,w:24,h:24});
+order.forEach(function(k){var t=TC[k],p=px(t[0],t[1]),nm=C[k].n[langIndex],pr=t[3];placed.push({x:p[0]-12,y:p[1]-12,w:24,h:24});
 placed.push({x:pr[2]==="end"?p[0]-14-70:p[0]+14,y:p[1]-10,w:70,h:28})});
 NB.forEach(function(c){var p=px(c[2],c[3]);placed.push({x:p[0]-5,y:p[1]-5,w:10,h:10})});
-NB.forEach(function(c){var p=px(c[2],c[3]),x=p[0],y=p[1],t=c[L],wd=t.length*(L?5.2:9.5)+4,
+NB.forEach(function(c){var p=px(c[2],c[3]),x=p[0],y=p[1],t=c[langIndex],wd=t.length*(langIndex?5.2:9.5)+4,
 cd=[[x+7,y+3,"start",x+6,y-7],[x-7,y+3,"end",x-8-wd,y-7],[x,y-8,"middle",x-wd/2,y-18],[x,y+16,"middle",x-wd/2,y+6]],ch=cd[0];
 for(var m=0;m<4;m++){var q=cd[m],r={x:q[3],y:q[4],w:wd,h:11},ok=r.x>2&&r.x+wd<W-2&&r.y>2&&r.y+11<H-2;
 placed.forEach(function(o){if(r.x<o.x+o.w&&r.x+r.w>o.x&&r.y<o.y+o.h&&r.y+r.h>o.y)ok=false});if(ok){ch=q;break}}
@@ -204,10 +204,10 @@ placed.push({x:ch[3],y:ch[4],w:wd,h:11});
 g+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3" fill="var(--mu)" stroke="var(--card)" stroke-width="1"/><text x="'+ch[0].toFixed(1)+'" y="'+ch[1].toFixed(1)+'" text-anchor="'+ch[2]+'" font-size="9.5" fill="var(--mu)" stroke="var(--card)" stroke-width="2.5" paint-order="stroke">'+t+'</text>'});
 order.forEach(function(k){var t=TC[k],p=px(t[0],t[1]),on=k===cur_c,pr=t[3];
 g+='<g style="cursor:pointer" onclick="goCity(\''+k+'\')">'+(on?'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="17" fill="var(--ac)" opacity=".22"/>':'')+'<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="'+(on?8:6.5)+'" fill="var(--ac)" stroke="var(--card)" stroke-width="2.5"/>'
-+'<text x="'+(p[0]+pr[0]).toFixed(1)+'" y="'+(p[1]+pr[1]).toFixed(1)+'" text-anchor="'+pr[2]+'" font-size="13.5" font-weight="700" fill="var(--tx)" stroke="var(--card)" stroke-width="3.5" paint-order="stroke">'+C[k].n[L]+'</text>'
++'<text x="'+(p[0]+pr[0]).toFixed(1)+'" y="'+(p[1]+pr[1]).toFixed(1)+'" text-anchor="'+pr[2]+'" font-size="13.5" font-weight="700" fill="var(--tx)" stroke="var(--card)" stroke-width="3.5" paint-order="stroke">'+C[k].n[langIndex]+'</text>'
 +'<text x="'+(p[0]+pr[0]).toFixed(1)+'" y="'+(p[1]+pr[1]+13).toFixed(1)+'" text-anchor="'+pr[2]+'" font-size="10" fill="var(--ac)" font-weight="600" stroke="var(--card)" stroke-width="3" paint-order="stroke">'+t[2]+'</text></g>'});
 g+='<text x="340" y="20" text-anchor="middle" font-size="10" font-weight="700" fill="var(--tx)">N</text><path d="M340 23l-4 9h8z" fill="var(--tx)"/></g></svg>';
-$("map").innerHTML=g+'<div class="mu" style="margin-top:6px">'+u("lg")+'</div><div class="mu">'+(D[cur].st[L]!=="—"?"🏨 "+D[cur].st[L]+" · ":"")+'<a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(C[D[cur].c].q)+'">'+u("open")+'</a></div>';
+$("map").innerHTML=g+'<div class="mu" style="margin-top:6px">'+u("lg")+'</div><div class="mu">'+(D[cur].st[langIndex]!=="—"?"🏨 "+D[cur].st[langIndex]+" · ":"")+'<a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(C[D[cur].c].q)+'">'+u("open")+'</a></div>';
 }
 function goCity(k){for(var i=0;i<D.length;i++)if(D[i].c===k){sel(i);return}}
 function sel(i){cur=i;location.hash="d"+(i+1);render();window.scrollTo(0,0)}
@@ -227,10 +227,10 @@ var pts=function(arr){return arr.map(function(x){var p=pr(x[0],x[1]);return p[0]
 var pt=s.map(function(x){return pr(x[0],x[1])});
 var g='<svg viewBox="0 0 360 '+H+'" role="img" aria-label="route"><defs><clipPath id="cp"><rect width="360" height="'+H+'" rx="10"/></clipPath><pattern id="gp" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="var(--ln)" stroke-width=".6"/></pattern></defs><g clip-path="url(#cp)"><rect width="360" height="'+H+'" fill="var(--chip)"/><rect width="360" height="'+H+'" fill="url(#gp)"/>';
 if(!one&&W){
-if(W.s){g+='<polygon points="'+pts(W.s)+'" fill="#6aa6d8" opacity=".3"/>';var sp=pr(W.s[2][0]-0.012,W.s[2][1]+0.014);g+='<text x="'+sp[0].toFixed(0)+'" y="'+sp[1].toFixed(0)+'" font-size="11" font-style="italic" fill="#4a86b8">'+W.n[L]+'</text>'}
+if(W.s){g+='<polygon points="'+pts(W.s)+'" fill="#6aa6d8" opacity=".3"/>';var sp=pr(W.s[2][0]-0.012,W.s[2][1]+0.014);g+='<text x="'+sp[0].toFixed(0)+'" y="'+sp[1].toFixed(0)+'" font-size="11" font-style="italic" fill="#4a86b8">'+W.n[langIndex]+'</text>'}
 if(W.l){g+='<polyline points="'+pts(W.l)+'" fill="none" stroke="#6aa6d8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity=".38"/>';
 var best=null,bd=1e9;W.l.forEach(function(x){var p=pr(x[0],x[1]),dd=Math.hypot(p[0]-180,p[1]-125);if(p[0]>20&&p[0]<340&&p[1]>20&&p[1]<H-20&&dd<bd){bd=dd;best=p}});
-if(best)g+='<text x="'+(best[0]+8).toFixed(0)+'" y="'+(best[1]+16).toFixed(0)+'" font-size="10" font-style="italic" fill="#4a86b8">'+W.n[L]+'</text>'}}
+if(best)g+='<text x="'+(best[0]+8).toFixed(0)+'" y="'+(best[1]+16).toFixed(0)+'" font-size="10" font-style="italic" fill="#4a86b8">'+W.n[langIndex]+'</text>'}}
 var km=0,tot=0,legs=[0];
 for(i=1;i<n;i++){var dy=(s[i][0]-s[i-1][0])*111.2,dx=(s[i][1]-s[i-1][1])*111.2*k,sk=Math.sqrt(dx*dx+dy*dy),rd=sk*1.3,wk=rd<=2.2,mn=Math.max(1,Math.round(wk?rd/4.8*60:rd/(rd>12?45:20)*60+10));km+=rd;tot+=mn;
 legs.push({rd:rd,mn:mn,em:rd>12?"🚌":wk?"🚶":"🚇"});
@@ -240,7 +240,7 @@ if(len>30){var mx=(p0[0]+p1[0])/2,my=(p0[1]+p1[1])/2,dg=Math.atan2(p1[1]-p0[1],p
 g+='<polygon points="-6,-5 6,0 -6,5" transform="translate('+mx.toFixed(1)+','+my.toFixed(1)+') rotate('+dg.toFixed(0)+')" fill="var(--ac)" stroke="var(--chip)" stroke-width="1.5"/>'}}
 var placed=pt.map(function(p){return{x:p[0]-13,y:p[1]-13,w:26,h:26}});
 pt.forEach(function(p,j){g+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="11" fill="'+(j?'var(--ac)':'#2e8b57')+'" stroke="var(--card)" stroke-width="2"/><text x="'+p[0].toFixed(1)+'" y="'+(p[1]+4).toFixed(1)+'" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">'+(j+1)+'</text>'});
-pt.forEach(function(p,j){var t=s[j][L+2].replace(/^(附近：|Nearby: )/,""),wd=t.length*(L?5.8:11)+6,x=p[0],y=p[1],
+pt.forEach(function(p,j){var t=s[j][langIndex+2].replace(/^(附近：|Nearby: )/,""),wd=t.length*(langIndex?5.8:11)+6,x=p[0],y=p[1],
 cd=[[x+15,y+4,"start",x+14,y-8],[x-15,y+4,"end",x-16-wd,y-8],[x,y-17,"middle",x-wd/2,y-30],[x,y+27,"middle",x-wd/2,y+15]],ch=cd[0];
 for(var m=0;m<4;m++){var c=cd[m],r={x:c[3],y:c[4],w:wd,h:14},ok=r.x>2&&r.x+wd<358&&r.y>2&&r.y+14<H-2;
 placed.forEach(function(o){if(r.x<o.x+o.w&&r.x+r.w>o.x&&r.y<o.y+o.h&&r.y+r.h>o.y)ok=false});if(ok){ch=c;break}}
@@ -251,7 +251,7 @@ g+='<path d="M16 '+(H-14)+'h'+bw.toFixed(1)+'M16 '+(H-18)+'v8M'+(16+bw).toFixed(
 g+='<text x="340" y="20" text-anchor="middle" font-size="10" font-weight="700" fill="var(--tx)">N</text><path d="M340 23l-4 9h8z" fill="var(--tx)"/></g></svg>';
 var f=function(x){return x[0]+","+x[1]};
 var url=one?"https://www.google.com/maps/search/?api=1&query="+f(s[0]):"https://www.google.com/maps/dir/?api=1&origin="+f(s[0])+"&destination="+f(s[n-1])+(n>2?"&waypoints="+s.slice(1,-1).slice(0,8).map(f).join("%7C"):"")+"&travelmode="+q.m;
-var ol='<ol style="margin:10px 0 0;padding-left:22px">'+s.map(function(x,j){return '<li><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+f(x)+'">'+x[L+2]+'</a>'+(j?'<div class="mu">'+legs[j].em+" ≈ "+legs[j].mn+u("min")+" · "+legs[j].rd.toFixed(1)+" km</div>":"")+'</li>'}).join("")+'</ol>';
+var ol='<ol style="margin:10px 0 0;padding-left:22px">'+s.map(function(x,j){return '<li><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+f(x)+'">'+x[langIndex+2]+'</a>'+(j?'<div class="mu">'+legs[j].em+" ≈ "+legs[j].mn+u("min")+" · "+legs[j].rd.toFixed(1)+" km</div>":"")+'</li>'}).join("")+'</ol>';
 return '<div class="card"><h2>'+u("rt")+'</h2>'+g+ol+'<div class="mu" style="margin-top:8px">'+(one?"":u("tot")+" "+tot+u("min")+" · "+km.toFixed(1)+" km · ")+u("est")+'</div><p style="margin:8px 0 0"><a target="_blank" rel="noopener" href="'+url+'">'+u("rtn")+' ↗</a></p></div>';
 }
 // Points of interest and representative station entrances (approximate positions); base streets and station labels are OSM map data.
@@ -268,11 +268,11 @@ paris:[
 var streetMap=null,stationLayer=null,poiLayer=null,routeLayer=null,streetStationVisible=true,streetPoiVisible=true;
 var EXTRA_POI={0:[[41.9022,12.4539,'圣彼得广场','St Peter’s Square']],1:[[41.8990,12.4730,'四河喷泉','Fountain of the Four Rivers'],[41.8979,12.4768,'万神庙广场','Piazza della Rotonda']],2:[[43.7731,11.2560,'大教堂广场','Piazza del Duomo']],3:[[43.7655,11.2500,'碧提宫广场','Piazza de Pitti']],4:[[41.3837,2.1765,'亲吻墙','Kissing Wall']],6:[[41.3908,2.1650,'格拉西亚大道','Passeig de Gràcia']],7:[[48.8610,2.3470,'沙特莱广场','Châtelet']],8:[[48.8600,2.3260,'杜乐丽花园东侧','Tuileries East'],[48.8688,2.3078,'香榭丽舍大街','Champs-Élysées'],[48.8584,2.2945,'埃菲尔铁塔','Eiffel Tower']],9:[[49.0097,2.5479,'戴高乐机场','CDG Airport']]};
 function dayMap(){
-var heading=L?'Real street map · stops & transit':'真实街道地图 · 景点与交通站';
-var note=L?'Zoom to see street names, metro and rail lines where mapped. Blue = metro/bus; green = train; purple = airport. Orange numbered pins = day stops. Connecting lines indicate stop order, not a navigable route.':'放大可查看街道名称、地铁及铁路线路（以地图收录内容为准）。蓝色=地铁/公交，绿色=火车，橙色数字=当日景点。连线仅表示游览顺序，并非真实道路导航。';
+var heading=langIndex?'Real street map · stops & transit':'真实街道地图 · 景点与交通站';
+var note=langIndex?'Zoom to see street names, metro and rail lines where mapped. Blue = metro/bus; green = train; purple = airport. Orange numbered pins = day stops. Connecting lines indicate stop order, not a navigable route.':'放大可查看街道名称、地铁及铁路线路（以地图收录内容为准）。蓝色=地铁/公交，绿色=火车，橙色数字=当日景点。连线仅表示游览顺序，并非真实道路导航。';
 var old=legacyDayMap();
-var fallback='<p class="mu" style="margin:8px 0">'+(L?'If the map is blank, expand the backup below or open the route in Google Maps.':'如果街道地图无法显示，请展开下方备用地图，或直接使用 Google Maps 查看路线。')+'</p>';
-return '<div class="card"><h2>🗺 '+heading+'</h2><div class="map-tools"><button type="button" id="toggleStation" class="active" onclick="toggleStreetLayer(&quot;station&quot;)">'+(L?'Stations':'地铁 / 火车站')+'</button><button type="button" id="togglePoi" class="active" onclick="toggleStreetLayer(&quot;poi&quot;)">'+(L?'Day stops':'当日景点')+'</button><button type="button" onclick="fitStreetMap()">'+(L?'Show entire route':'查看完整路线')+'</button></div><div id="streetMap"><div class="mu" style="padding:20px">'+(L?'Loading street map…':'正在加载街道地图…')+'</div></div><p class="mu">'+note+'</p></div><details class="card"><summary>'+(L?'Route list, distance estimates and schematic backup':'路线清单、距离估算与备用示意图')+'</summary>'+old+'</details>';
+var fallback='<p class="mu" style="margin:8px 0">'+(langIndex?'If the map is blank, expand the backup below or open the route in Google Maps.':'如果街道地图无法显示，请展开下方备用地图，或直接使用 Google Maps 查看路线。')+'</p>';
+return '<div class="card"><h2>🗺 '+heading+'</h2><div class="map-tools"><button type="button" id="toggleStation" class="active" onclick="toggleStreetLayer(&quot;station&quot;)">'+(langIndex?'Stations':'地铁 / 火车站')+'</button><button type="button" id="togglePoi" class="active" onclick="toggleStreetLayer(&quot;poi&quot;)">'+(langIndex?'Day stops':'当日景点')+'</button><button type="button" onclick="fitStreetMap()">'+(langIndex?'Show entire route':'查看完整路线')+'</button></div><div id="streetMap"><div class="mu" style="padding:20px">'+(langIndex?'Loading street map…':'正在加载街道地图…')+'</div></div><p class="mu">'+note+'</p></div><details class="card"><summary>'+(langIndex?'Route list, distance estimates and schematic backup':'路线清单、距离估算与备用示意图')+'</summary>'+old+'</details>';
 }
 function pinIcon(label,type){return window.L.divIcon({className:'',html:'<div class="map-pin '+(type||'')+'" style="width:25px;height:25px">'+label+'</div>',iconSize:[29,29],iconAnchor:[14,14]})}
 function fitStreetMap(){if(!streetMap){initStreetMap();return}var pts=P[cur].p.concat(EXTRA_POI[cur]||[]).map(function(p){return [p[0],p[1]]});if(pts.length===1)streetMap.setView(pts[0],14);else streetMap.fitBounds(window.L.latLngBounds(pts).pad(.22),{maxZoom:15});}
@@ -282,9 +282,9 @@ var el=document.getElementById('streetMap');if(!el)return;
 if(!window.L||!window.L.map){
 var pts=P[cur].p,lat=pts.map(function(p){return p[0]}),lng=pts.map(function(p){return p[1]}),a=Math.min.apply(null,lat)-.008,b=Math.max.apply(null,lat)+.008,c=Math.min.apply(null,lng)-.012,d=Math.max.apply(null,lng)+.012;
 var bbox=[c,a,d,b].join(','),center=pts[0][0]+','+pts[0][1];
-el.innerHTML='<iframe title="'+(L?'Interactive OpenStreetMap':'OpenStreetMap 街道地图')+'" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" style="border:0;width:100%;height:100%;border-radius:10px" src="https://www.openstreetmap.org/export/embed.html?bbox='+encodeURIComponent(bbox)+'&layer=mapnik&marker='+encodeURIComponent(center)+'"></iframe>';
+el.innerHTML='<iframe title="'+(langIndex?'Interactive OpenStreetMap':'OpenStreetMap 街道地图')+'" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" style="border:0;width:100%;height:100%;border-radius:10px" src="https://www.openstreetmap.org/export/embed.html?bbox='+encodeURIComponent(bbox)+'&layer=mapnik&marker='+encodeURIComponent(center)+'"></iframe>';
 var info=document.createElement('p');info.className='mu';info.style.margin='8px 0';
-info.innerHTML=(L?'Enhanced map library did not load; showing a street-map fallback.':'地图交互组件未能加载，已切换到街道地图备用模式。')+' <a target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat='+pts[0][0]+'&mlon='+pts[0][1]+'#map=14/'+pts[0][0]+'/'+pts[0][1]+'">'+(L?'Open full map':'打开完整街道地图')+'</a>';
+info.innerHTML=(langIndex?'Enhanced map library did not load; showing a street-map fallback.':'地图交互组件未能加载，已切换到街道地图备用模式。')+' <a target="_blank" rel="noopener" href="https://www.openstreetmap.org/?mlat='+pts[0][0]+'&mlon='+pts[0][1]+'#map=14/'+pts[0][0]+'/'+pts[0][1]+'">'+(langIndex?'Open full map':'打开完整街道地图')+'</a>';
 el.insertAdjacentElement('afterend',info);return}
 if(streetMap){streetMap.remove();streetMap=null}
 try{
@@ -294,37 +294,37 @@ var coords=P[cur].p.map(function(p){return [p[0],p[1]]});
 routeLayer=window.L.polyline(coords,{color:'#b4472f',weight:3,opacity:.75,dashArray:'7,7'}).addTo(streetMap);
 poiLayer=window.L.layerGroup();stationLayer=window.L.layerGroup();
 var allStops=P[cur].p.concat((EXTRA_POI[cur]||[]).map(function(p){return [p[0],p[1],p[2],p[3]]}));
-allStops.forEach(function(p,i){var name=p[L+2];var gm='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p[0]+','+p[1]);window.L.marker([p[0],p[1]],{icon:pinIcon(String(i+1))}).bindPopup('<b>'+(i+1)+'. '+name+'</b><p><a target="_blank" rel="noopener" href="'+gm+'">Google Maps ↗</a></p>').addTo(poiLayer)});
+allStops.forEach(function(p,i){var name=p[langIndex+2];var gm='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p[0]+','+p[1]);window.L.marker([p[0],p[1]],{icon:pinIcon(String(i+1))}).bindPopup('<b>'+(i+1)+'. '+name+'</b><p><a target="_blank" rel="noopener" href="'+gm+'">Google Maps ↗</a></p>').addTo(poiLayer)});
 ST[D[cur].c].forEach(function(p){var kind=p[3]==='rail'?'rail':p[3]==='air'?'air':'station',gm='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p[0]+','+p[1]);window.L.marker([p[0],p[1]],{icon:pinIcon(kind==='rail'?'🚆':'M',kind)}).bindPopup('<b>'+p[2]+'</b><p><a target="_blank" rel="noopener" href="'+gm+'">Google Maps ↗</a></p>').addTo(stationLayer)});
 poiLayer.addTo(streetMap);stationLayer.addTo(streetMap);streetPoiVisible=true;streetStationVisible=true;fitStreetMap();setTimeout(function(){if(streetMap)streetMap.invalidateSize()},80);
-}catch(e){el.innerHTML='<p class="mu">'+(L?'Map unavailable; use the backup schematic.':'地图加载失败，请使用下方备用示意图。')+'</p>'}
+}catch(e){el.innerHTML='<p class="mu">'+(langIndex?'Map unavailable; use the backup schematic.':'地图加载失败，请使用下方备用示意图。')+'</p>'}
 }
 function render(){
 var d=D[cur],c=C[d.c],w=c.wx;
-document.documentElement.lang=L?"en":"zh";$("lang").textContent=L?"中文":"EN";
+document.documentElement.lang=langIndex?"en":"zh";$("lang").textContent=langIndex?"中文":"EN";
 $("ti").textContent=u("ti");$("mh").textContent=u("mh");$("ah").textContent=u("ah");$("q").placeholder=u("ph");$("go").textContent=u("go");
 $("qs").innerHTML='<button class="chip" onclick="$(\'q\').value=this.textContent">'+u("q1")+'</button><button class="chip" onclick="$(\'q\').value=this.textContent">'+u("q2")+'</button>';$("ans").textContent="";
 var days=Math.ceil((new Date(2026,10,7)-new Date())/864e5);
 $("su").textContent=u("su")+(days>0?" · "+u("cd").replace("%n",days):"");
-$("tabs").innerHTML=D.map(function(x,i){return '<button class="chip'+(i===cur?" on":"")+'" onclick="sel('+i+')">'+x.d+'<small>'+x.c.slice(0,0)+C[x.c].n[L]+'</small></button>'}).join("");
-var h='<div class="card"><h2>'+d.d+" "+d.w[L]+" · "+c.n[L]+'</h2>';
-h+=d.it.map(function(r){return '<div class="it"><div class="tm">'+T(r[0])+'</div><div>'+r[L+1]+'</div></div>'}).join("")+'</div>';
+$("tabs").innerHTML=D.map(function(x,i){return '<button class="chip'+(i===cur?" on":"")+'" onclick="sel('+i+')">'+x.d+'<small>'+x.c.slice(0,0)+C[x.c].n[langIndex]+'</small></button>'}).join("");
+var h='<div class="card"><h2>'+d.d+" "+d.w[langIndex]+" · "+c.n[langIndex]+'</h2>';
+h+=d.it.map(function(r){return '<div class="it"><div class="tm">'+T(r[0])+'</div><div>'+r[langIndex+1]+'</div></div>'}).join("")+'</div>';
 h+=dayMap();
-h+='<div class="row"><div class="card"><h2>'+u("wx")+'</h2><div class="wx"><span style="font-size:34px">'+w[2]+'</span><div><b>'+w[0]+"–"+w[1]+'°C</b><div>'+w[3][L]+'</div></div></div><div class="mu" style="margin-top:6px">🌅 '+u("sun")+c.sun+" · "+u("typ")+'<br><a target="_blank" rel="noopener" href="https://www.google.com/search?q='+encodeURIComponent("weather "+c.q)+'">'+u("fc")+'</a></div></div>';
-h+='<div class="card"><h2>'+u("tr")+'</h2><p style="margin:0">'+d.tr[L]+'</p></div></div>';
-h+='<div class="card"><h2>'+u("pr")+'</h2><p style="margin:0">'+d.pr[L]+'</p></div>';
-h+='<div class="card"><h2>'+u("cul")+'</h2><ul>'+c.cul.map(function(x){return '<li>'+x[L]+'</li>'}).join("")+'</ul></div>';
+h+='<div class="row"><div class="card"><h2>'+u("wx")+'</h2><div class="wx"><span style="font-size:34px">'+w[2]+'</span><div><b>'+w[0]+"–"+w[1]+'°C</b><div>'+w[3][langIndex]+'</div></div></div><div class="mu" style="margin-top:6px">🌅 '+u("sun")+c.sun+" · "+u("typ")+'<br><a target="_blank" rel="noopener" href="https://www.google.com/search?q='+encodeURIComponent("weather "+c.q)+'">'+u("fc")+'</a></div></div>';
+h+='<div class="card"><h2>'+u("tr")+'</h2><p style="margin:0">'+d.tr[langIndex]+'</p></div></div>';
+h+='<div class="card"><h2>'+u("pr")+'</h2><p style="margin:0">'+d.pr[langIndex]+'</p></div>';
+h+='<div class="card"><h2>'+u("cul")+'</h2><ul>'+c.cul.map(function(x){return '<li>'+x[langIndex]+'</li>'}).join("")+'</ul></div>';
 h+='<p class="mu">'+u("note")+'</p>';
 if(streetMap){try{streetMap.off();streetMap.remove()}catch(e){}streetMap=null} $("day").innerHTML=h;map();initStreetMap();
 var el=document.querySelector(".chip.on");if(el&&el.scrollIntoView)el.scrollIntoView({inline:"center",block:"nearest"});
 }
-$("lang").onclick=function(){L=1-L;render()};
+$("lang").onclick=function(){langIndex=1-langIndex;render()};
 var smp=null;
 try{if(window.claude&&claude.use)claude.use("sample").then(function(s){if(s){smp=s;$("ask").hidden=false}}).catch(function(){})}catch(e){}
 $("go").onclick=function(){
 var q=$("q").value.trim();if(!q||!smp)return;
 var d=D[cur],c=C[d.c],b=$("go");
-var p="You are a concise travel assistant. Trip: Italy, Spain, France, November 2026. Selected day: "+d.d+" in "+c.q+". Stay: "+d.st[1]+". Itinerary: "+d.it.map(function(r){return (Array.isArray(r[0])?r[0][1]:r[0])+" "+r[2]}).join("; ")+". Transport notes: "+d.tr[1]+". Reply in "+(L?"English":"Simplified Chinese")+", under 150 words. If you are unsure about live information (weather, timetables, prices, opening hours), say so and suggest checking an official source. Question: "+q;
+var p="You are a concise travel assistant. Trip: Italy, Spain, France, November 2026. Selected day: "+d.d+" in "+c.q+". Stay: "+d.st[1]+". Itinerary: "+d.it.map(function(r){return (Array.isArray(r[0])?r[0][1]:r[0])+" "+r[2]}).join("; ")+". Transport notes: "+d.tr[1]+". Reply in "+(langIndex?"English":"Simplified Chinese")+", under 150 words. If you are unsure about live information (weather, timetables, prices, opening hours), say so and suggest checking an official source. Question: "+q;
 b.disabled=true;$("ans").textContent=u("busy");
 smp(p,{cache:false,onText:function(r){$("ans").textContent=r.text}}).then(function(r){if(r&&r.text)$("ans").textContent=r.text}).catch(function(){$("ans").textContent=u("err")}).then(function(){b.disabled=false});
 };
